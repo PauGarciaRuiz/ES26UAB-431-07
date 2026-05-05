@@ -1,0 +1,18 @@
+@startuml
+left to right direction
+skinparam actorStyle stickman
+
+actor "Usuari no registrat" as UNR
+actor "Usuari registrat" as UR
+UR -up-|> UNR
+
+usecase "Edició Perfil" as UC_Perfil
+usecase "Eliminar compte" as UC_Eliminar
+usecase "Gestionar rols" as UC_GestRol
+
+
+UR --> UC_Perfil
+UC_Eliminar ..> UC_Perfil : <<extend>>
+UR --> UC_GestRol
+
+@enduml
