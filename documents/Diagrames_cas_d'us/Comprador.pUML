@@ -1,0 +1,46 @@
+@startuml
+left to right direction
+skinparam actorStyle stickman
+
+actor "Usuari registrat" as UR
+actor "Comprador" as Client
+Client -up-|> UR
+
+actor "Google Maps" <<Sistema Extern>> as Gmaps
+actor "PayPal / Entitat Bancària" <<Sistema Extern>> as Banc
+
+usecase "Consultar cuiners disponibles" as UC_ConsCuiners
+usecase "Fer Comanda" as UC_FerComanda
+usecase "Modificar ingredients opcionals" as UC_ModIng
+usecase "Seleccionar modalitat d'entrega" as UC_ModEntrega
+usecase "Pagar comanda" as UC_PagarCom
+usecase "Seguiment Comanda" as UC_Seguiment
+usecase "Consultar comandes anteriors" as UC_Historial
+usecase "Puntuar" as UC_Puntuar
+usecase "Proposar Plats desitjats" as UC_Proposar
+usecase "Comunicar-se per xat" as UC_xat
+usecase "Repetir Comanda" as UC_repetir
+usecase "Pagar subscripció mensual" as UC_Subscripcio
+
+Client --> UC_ConsCuiners
+Client --> UC_FerComanda
+Client --> UC_Seguiment
+Client --> UC_Historial
+Client --> UC_Proposar
+Client -- UC_xat
+Client --> UC_Subscripcio
+
+UC_repetir ..> UC_FerComanda : <<extend>> 
+UC_FerComanda ..> UC_ModEntrega : <<include>>
+UC_FerComanda ..> UC_PagarCom : <<include>>
+UC_FerComanda ..> UC_ModIng : <<include>>
+
+UC_Puntuar ..> UC_Historial : <<extend>>
+ 
+
+UC_ConsCuiners --> Gmaps
+UC_ModEntrega --> Gmaps
+UC_Seguiment --> Gmaps
+UC_PagarCom --> Banc
+UC_Subscripcio --> Banc
+@enduml
