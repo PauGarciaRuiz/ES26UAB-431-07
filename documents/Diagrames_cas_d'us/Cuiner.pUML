@@ -1,0 +1,27 @@
+@startuml
+left to right direction
+skinparam actorStyle stickman
+
+actor "Usuari registrat" as UR
+actor "Cuiner" as Cuiner
+Cuiner -up-|> UR
+
+usecase "Oferir Plats i menús" as UC_Oferir
+usecase "Indicar al·lèrgens, ingredients i opcionals" as UC_Detalls
+usecase "Indicar disponibilitat" as UC_Disp
+usecase "Accedir a vista de plats desitjats" as UC_VistaDesitjats
+usecase "Acceptar comandes" as UC_Acceptar
+usecase "Comunicar-se per xat" as UC_Xat
+usecase "Actualitzar estat de la comanda" as UC_Estat
+
+Cuiner --> UC_Oferir
+Cuiner --> UC_Disp
+Cuiner --> UC_VistaDesitjats
+Cuiner --> UC_Estat
+Cuiner --> UC_Acceptar
+Cuiner -- UC_Xat
+
+UC_Oferir ..> UC_Detalls : <<include>>
+
+
+@enduml
