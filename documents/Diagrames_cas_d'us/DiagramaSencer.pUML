@@ -1,0 +1,139 @@
+@startuml
+skinparam actorStyle stickman
+left to right direction
+
+' --- DEFINICIÓ D'ACTORS ---
+
+actor "Usuari no registrat" as UNR
+actor "Usuari registrat" as UR
+actor "Comprador" as Comprador
+actor "Cuiner" as Cuiner
+actor "Repartidor" as Repartidor
+
+' Actors Externs
+actor "Google Maps" <<Sistema Extern>> as Gmaps
+actor "PayPal / Entitat Bancària" <<Sistema Extern>> as Banc
+actor "Proveïdor d'Identitat\n(Gmail/Outlook)" <<Sistema Extern>> as OAuth
+
+' Herències d'actors
+UR -up-|> UNR
+Comprador -up-|> UR
+Cuiner -up-|> UR
+Repartidor -up-|> UR
+
+' --- CASOS D'ÚS ---
+
+' Usuari no registrat
+usecase "Registrar-se" as UC_Reg
+usecase "Indicar tipus de compte (rol)" as UC_Rol
+usecase "Iniciar Sessió" as UC_Login
+usecase "Consultar plats i\nmenús disponibles" as UC_ConsPlats
+usecase "Canviar idioma" as UC_Idioma
+
+' Usuari registrat
+usecase "Edició Perfil" as UC_Perfil
+usecase "Eliminar compte" as UC_Eliminar
+usecase "Gestionar rols" as UC_GestRol
+
+' Comprador
+usecase "Consultar cuiners disponibles" as UC_ConsCuiners
+usecase "Fer Comanda" as UC_FerComanda
+usecase "Modificar ingredients opcionals" as UC_ModIngr
+usecase "Seleccionar modalitat d'entrega" as UC_ModEntrega
+usecase "Pagar comanda" as UC_PagarCom
+usecase "Consultar comandes anteriors" as UC_Historial
+usecase "Seguiment Comanda" as UC_Seguiment
+usecase "Puntuar" as UC_Puntuar
+usecase "Proposar Plats desitjats" as UC_Proposar
+usecase "Comunicar-se per xat" as UC_Xat
+usecase "Repetir Comanda" as UC_Repetir
+usecase "Pagar subscripció mensual" as UC_Subs
+
+' Cuiner
+usecase "Oferir Plats i menús" as UC_Oferir
+usecase "Indicar al·lèrgens,\ningredients i opcionals" as UC_DetallsPlat
+usecase "Indicar disponibilitat" as UC_Disp
+usecase "Accedir a vista de plats desitjats" as UC_VistaDesitjats
+usecase "Acceptar comandes" as UC_AccComandes
+usecase "Actualitzar estat de la comanda" as UC_Estat
+
+' Repartidor
+usecase "Consultar comandes\npendents de repartir" as UC_Pendents
+usecase "Acceptar repartiment" as UC_AccRepartiment
+usecase "Consultar ruta de lliurament" as UC_Ruta
+
+
+' --- RELACIONS INTERNES (Includes/Extends) ---
+
+UC_Reg ..> UC_Rol : <<include>>
+
+' Gestió de compte
+UC_Eliminar ..> UC_Perfil : <<extend>>
+
+' Procés de Fer Comanda
+UC_FerComanda ..> UC_ModEntrega : <<include>>
+UC_FerComanda ..> UC_PagarCom : <<include>>
+UC_FerComanda ..> UC_ModIngr : <<include>>
+UC_Repetir ..> UC_FerComanda : <<extend>>
+
+' Historial
+UC_Puntuar ..> UC_Historial : <<extend>>
+
+' Cuiner
+UC_Oferir ..> UC_DetallsPlat : <<include>>
+
+
+' --- CONEXIONS ACTORS -> CASOS D'ÚS ---
+
+' Usuari no registrat
+UNR --> UC_Reg
+UNR --> UC_Login
+UNR --> UC_ConsPlats
+UNR --> UC_Idioma
+
+' Usuari registrat
+UR --> UC_Perfil
+UR --> UC_GestRol
+
+' Comprador
+Comprador --> UC_ConsCuiners
+Comprador --> UC_FerComanda
+Comprador --> UC_Seguiment
+Comprador --> UC_Historial
+Comprador --> UC_Proposar
+Comprador -- UC_Xat
+Comprador --> UC_Subs
+
+' Cuiner
+Cuiner --> UC_Oferir
+Cuiner --> UC_Disp
+Cuiner --> UC_VistaDesitjats
+Cuiner --> UC_Estat
+Cuiner --> UC_AccComandes
+Cuiner -- UC_Xat
+
+' Repartidor
+Repartidor --> UC_Pendents
+Repartidor --> UC_Estat
+Repartidor --> UC_Ruta
+Repartidor --> UC_AccRepartiment
+
+' --- CONEXIONS SISTEMES EXTERNS ---
+
+' Autenticació
+UC_Reg --> OAuth
+UC_Login --> OAuth
+
+' Mapes / Localització
+UC_ConsPlats --> Gmaps
+UC_ConsCuiners --> Gmaps
+UC_ModEntrega --> Gmaps
+UC_Seguiment --> Gmaps
+UC_Ruta --> Gmaps
+UC_Pendents --> Gmaps
+
+' Pagaments
+UC_Subs --> Banc
+UC_PagarCom --> Banc
+
+@enduml
