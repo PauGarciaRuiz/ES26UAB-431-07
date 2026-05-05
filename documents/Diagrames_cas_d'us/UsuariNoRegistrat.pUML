@@ -1,0 +1,25 @@
+@startuml
+left to right direction
+skinparam actorStyle stickman
+
+actor "Usuari no registrat" as UNR
+actor "Proveïdor d'Identitat\n(Gmail/Outlook)" <<Sistema Extern>> as OAuth
+actor "Google Maps" <<Sistema Extern>> as Gmaps
+
+usecase "Registrar-se" as UC_Reg
+usecase "Indicar tipus de compte (rol)" as UC_Rol
+usecase "Iniciar Sessió" as UC_Login
+usecase "Consultar plats i menús disponibles" as UC_ConsPlats
+usecase "Canviar idioma" as UC_Idioma
+
+UNR --> UC_Reg
+UNR --> UC_Login
+UNR --> UC_ConsPlats
+UNR --> UC_Idioma
+
+UC_Reg ..> UC_Rol : <<include>>
+
+UC_Login --> OAuth
+UC_Reg --> OAuth
+UC_ConsPlats --> Gmaps
+@enduml
