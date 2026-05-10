@@ -29,10 +29,10 @@ Client --> UC_Historial
 Client --> UC_Proposar
 Client -- UC_xat
 Client --> UC_Subscripcio
+Client --> UC_PagarCom
 
 UC_repetir ..> UC_FerComanda : <<extend>> 
 UC_FerComanda ..> UC_ModEntrega : <<include>>
-UC_FerComanda ..> UC_PagarCom : <<include>>
 UC_FerComanda ..> UC_ModIng : <<include>>
 
 UC_Puntuar ..> UC_Historial : <<extend>>
