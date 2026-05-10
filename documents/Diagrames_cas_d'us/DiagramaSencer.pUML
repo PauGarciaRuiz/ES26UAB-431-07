@@ -72,7 +72,6 @@ UC_Eliminar ..> UC_Perfil : <<extend>>
 
 ' Procés de Fer Comanda
 UC_FerComanda ..> UC_ModEntrega : <<include>>
-UC_FerComanda ..> UC_PagarCom : <<include>>
 UC_FerComanda ..> UC_ModIngr : <<include>>
 UC_Repetir ..> UC_FerComanda : <<extend>>
 
@@ -81,6 +80,9 @@ UC_Puntuar ..> UC_Historial : <<extend>>
 
 ' Cuiner
 UC_Oferir ..> UC_DetallsPlat : <<include>>
+
+' Repartidor
+UC_AccRepartiment ..> UC_Pendents : <extend>
 
 
 ' --- CONEXIONS ACTORS -> CASOS D'ÚS ---
@@ -103,6 +105,7 @@ Comprador --> UC_Historial
 Comprador --> UC_Proposar
 Comprador -- UC_Xat
 Comprador --> UC_Subs
+Comprador --> UC_PagarCom
 
 ' Cuiner
 Cuiner --> UC_Oferir
@@ -116,7 +119,7 @@ Cuiner -- UC_Xat
 Repartidor --> UC_Pendents
 Repartidor --> UC_Estat
 Repartidor --> UC_Ruta
-Repartidor --> UC_AccRepartiment
+UC_Seguiment --> Repartidor
 
 ' --- CONEXIONS SISTEMES EXTERNS ---
 
