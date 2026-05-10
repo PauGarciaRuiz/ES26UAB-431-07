@@ -11,13 +11,15 @@ actor "Google Maps" <<Sistema Extern>> as Gmaps
 
 usecase "Consultar ruta de lliurament" as UC_Ruta
 usecase "Acceptar repartiment" as UC_Acceptar
-usecase "Consultar Comandes Pendents de repartir" as UC_ConsComandes
+usecase "Consultar Comandes Pendents" as UC_ConsComandes
 usecase "Actualitzar estat de la comanda" as UC_Estat
 
 Repartidor --> UC_ConsComandes
 Repartidor --> UC_Estat
 Repartidor --> UC_Ruta
-Repartidor --> UC_Acceptar
+
+
+UC_Acceptar ..> UC_ConsComandes : <<extend>>
 
 
 UC_Ruta --> Gmaps
