@@ -30,12 +30,13 @@ Client --> UC_Proposar
 Client -- UC_xat
 Client --> UC_Subscripcio
 Client --> UC_PagarCom
+Client --> UC_Puntuar
 
-UC_repetir ..> UC_FerComanda : <<extend>> 
+UC_repetir ..> UC_Historial : <<extend>> 
 UC_FerComanda ..> UC_ModEntrega : <<include>>
 UC_FerComanda ..> UC_ModIng : <<include>>
 
-UC_Puntuar ..> UC_Historial : <<extend>>
+UC_Puntuar ..> UC_Historial : <<include>>
  
 
 UC_ConsCuiners --> Gmaps
