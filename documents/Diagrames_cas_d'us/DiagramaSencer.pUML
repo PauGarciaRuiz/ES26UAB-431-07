@@ -73,10 +73,10 @@ UC_Eliminar ..> UC_Perfil : <<extend>>
 ' Procés de Fer Comanda
 UC_FerComanda ..> UC_ModEntrega : <<include>>
 UC_FerComanda ..> UC_ModIngr : <<include>>
-UC_Repetir ..> UC_FerComanda : <<extend>>
+UC_Repetir ..> UC_Historial : <<extend>>
 
 ' Historial
-UC_Puntuar ..> UC_Historial : <<extend>>
+UC_Puntuar ..> UC_Historial : <<include>>
 
 ' Cuiner
 UC_Oferir ..> UC_DetallsPlat : <<include>>
@@ -106,6 +106,7 @@ Comprador --> UC_Proposar
 Comprador -- UC_Xat
 Comprador --> UC_Subs
 Comprador --> UC_PagarCom
+Comprador --> UC_Puntuar
 
 ' Cuiner
 Cuiner --> UC_Oferir
