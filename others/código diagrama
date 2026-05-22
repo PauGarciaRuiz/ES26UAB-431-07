@@ -16,7 +16,7 @@ enum ModalitatEntrega {
 }
 
 
-class UsuariRegistrat {
+class DadesUsuariRegistrat {
     - idUsuari: int
     - nom: String
     - correu: String
@@ -27,7 +27,7 @@ class UsuariRegistrat {
 }
 
 ' --- ROLS D'USUARI REGISTRAT (RF-1-04) ---
-class Comprador {
+class DadesComprador {
     - restriccionsAlimentaries: List<String>
     - teSubscripcio: boolean
     - puntsAcumulats: int
@@ -37,7 +37,7 @@ class Comprador {
     + consultarMenús()
 }
 
-class Cuiner {
+class DadesCuiner {
     - rankingPosicio: int
     - disponible: boolean
     + indicarDisponibilitat(estat: boolean)
@@ -45,7 +45,7 @@ class Cuiner {
     + consultarPlatsDesitjats()
 }
 
-class Repartidor {
+class DadesRepartidor {
     - localitzacioActual: String
     + actualitzarPosicio()
 }
@@ -91,6 +91,14 @@ class Xat {
     + enviarMissatge(text: String)
 }
 
+class Missatge {
+    - Data: Date
+    - Contingut: String
+    - idMissatge: String
+    - idEmisor: String
+    + editarMissatge(text: String)
+}
+
 ' --- SERVEIS EXTERNS (INTERFICIES) ---
 class ServeiPagament <<service>> {
     + autenticarPagament(import: double, metode: String): boolean
@@ -105,41 +113,42 @@ class ServeiGPS <<service>> {
 
 
 ' Els rols penjant de l'usuari registrat
-UsuariRegistrat <|-- Comprador
-UsuariRegistrat <|-- Cuiner
-UsuariRegistrat <|-- Repartidor
+DadesUsuariRegistrat <|-- DadesComprador
+DadesUsuariRegistrat <|-- DadesCuiner
+DadesUsuariRegistrat <|-- DadesRepartidor
 
 ' Relacions de Comandes
-Comprador "1" --> "0..*" Comanda : realitza
-Cuiner "1" --> "0..*" Comanda : prepara
-Repartidor "0..1" --> "0..*" Comanda : lliura
+DadesComprador "1" --> "0..*" Comanda : realitza
+DadesCuiner "1" --> "0..*" Comanda : prepara
+DadesRepartidor "0..1" --> "0..*" Comanda : lliura
 
 ' El contingut de les comandes
 Comanda "0..*" --> "1..*" Menú : inclou
 
 ' Vinculació dels Enums a la Comanda
-Comanda ..> EstatComanda : té estat
-Comanda ..> ModalitatEntrega : s'entrega via
+Comanda --> EstatComanda : té estat
+Comanda --> ModalitatEntrega : s'entrega via
 
 ' Composició de Menús i Plats
-Cuiner "1" --> "0..*" Menú : ofereix
-Menú "1" *-- "1..*" Plat : conté
+DadesCuiner "1" --> "0..*" Menú : ofereix
+Menú "1" o-- "1..*" Plat : conté
 Plat "1" o-- "1..*" Ingredient : té
 
 ' Funcionalitat de Plats Desitjats (RF-6-01: El comprador desitja un menú/plat que el cuiner pot veure)
-Comprador ..> Menú : proposa 
-Cuiner ..> Menú : consulta propostes 
+DadesComprador --> Menú : proposa 
+DadesCuiner --> Menú : consulta propostes 
 
 ' Valoracions
-Comprador "1" --> "0..*" Valoracio : crea
+DadesComprador "1" --> "0..*" Valoracio : crea
 Valoracio "0..*" --> "1" Cuiner : puntua
 
 ' Comunicació
-Comprador "1" -- "0..*" Xat
+DadesComprador "1" -- "0..*" Xat
 Cuiner "1" -- "0..*" Xat
+Missatge "0..*" --* "1" Xat
 
 ' Dependències de Serveis Externs
-Comprador ..> ServeiPagament : paga a través de
-Comanda ..> ServeiGPS : utilitza
+DadesComprador --> ServeiPagament : paga a través de
+Comanda --> ServeiGPS : utilitza
 
 @enduml
