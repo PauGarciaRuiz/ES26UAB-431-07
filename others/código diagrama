@@ -140,11 +140,11 @@ DadesCuiner --> Menú : consulta propostes
 
 ' Valoracions
 DadesComprador "1" --> "0..*" Valoracio : crea
-Valoracio "0..*" --> "1" Cuiner : puntua
+Valoracio "0..*" --> "1" DadesCuiner : puntua
 
 ' Comunicació
 DadesComprador "1" -- "0..*" Xat
-Cuiner "1" -- "0..*" Xat
+DadesCuiner "1" -- "0..*" Xat
 Missatge "0..*" --* "1" Xat
 
 ' Dependències de Serveis Externs
