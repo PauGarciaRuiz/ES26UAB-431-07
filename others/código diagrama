@@ -15,8 +15,64 @@ enum ModalitatEntrega {
     RECOLLIDA_CLIENT
 }
 
+' --- CAPA BOUNDARY (INTERFÍCIES DE LÍMIT) ---
+class InterfUsuaris <<boundary>> {
+}
 
-class DadesUsuariRegistrat {
+class InterfComprador <<boundary>> {
+}
+
+class InterfCuiner <<boundary>> {
+}
+
+class InterfRepartidor <<boundary>> {
+}
+
+class InterfComandes <<boundary>> {
+}
+
+class InterfCataleg <<boundary>> {
+}
+
+class InterfComunicacio <<boundary>> {
+}
+
+
+' --- CAPA CONTROL (GESTORS) ---
+class CtrlUsuaris <<control>> {
+    + registrarUsuari(dades: DadesUsuariRegistrat)
+    + autenticarUsuari(correu: String, pass: String): DadesUsuariRegistrat
+}
+
+class CtrlComprador <<control>> {
+}
+
+class CtrlCuiner <<control>> {
+}
+
+class CtrlRepartidor <<control>> {
+}
+
+class CtrlComandes <<control>> {
+    + crearComanda(idComprador: int, idMenu: int, mod: ModalitatEntrega): Comanda
+    + processarPagament(idComanda: int, metode: String): boolean
+    + actualitzarEstat(idComanda: int, estat: EstatComanda)
+    + obtenirRutaRepartiment(idComanda: int)
+}
+
+class CtrlCataleg <<control>> {
+    + afegirMenu(idCuiner: int, menu: Menú)
+    + afegirPropostaMenu(idComprador: int, proposta: String)
+}
+
+class CtrlComunicacio <<control>> {
+    + iniciarXat(idUsuari1: int, idUsuari2: int): Xat
+    + enviarMissatge(idXat: int, idEmisor: String, text: String)
+}
+
+
+' --- CAPA ENTITAT (CLASSES DE DOMINI ORIGINALS) ---
+class DadesUsuariRegistrat <<entity>> {
     - idUsuari: int
     - nom: String
     - correu: String
@@ -26,8 +82,7 @@ class DadesUsuariRegistrat {
     + loguejar-se()
 }
 
-' --- ROLS D'USUARI REGISTRAT (RF-1-04) ---
-class DadesComprador {
+class DadesComprador <<entity>> {
     - restriccionsAlimentaries: List<String>
     - teSubscripcio: boolean
     - puntsAcumulats: int
@@ -37,7 +92,7 @@ class DadesComprador {
     + consultarMenús()
 }
 
-class DadesCuiner {
+class DadesCuiner <<entity>> {
     - rankingPosicio: int
     - disponible: boolean
     + indicarDisponibilitat(estat: boolean)
@@ -45,13 +100,12 @@ class DadesCuiner {
     + consultarPlatsDesitjats()
 }
 
-class DadesRepartidor {
+class DadesRepartidor <<entity>> {
     - localitzacioActual: String
     + actualitzarPosicio()
 }
 
-' --- CORE DEL NEGOCI ---
-class Comanda {
+class Comanda <<entity>> {
     - idComanda: int
     - data: Date
     - estat: EstatComanda
@@ -61,37 +115,37 @@ class Comanda {
     + actulitzarEstat(EstatComanda estatActualitzat)
 }
 
-class Menú {
+class Menú <<entity>> {
     - idMenu: int
     - nom: String
     - preu: double
 }
 
-class Plat {
+class Plat <<entity>> {
     - idPlat: int
     - nom: String
     - tempsEstimatEntrega: int
 }
 
-class Ingredient {
+class Ingredient <<entity>> {
     - nom: String
     - esOpcional: boolean
     - esAl_lergen: boolean
 }
 
-class Valoracio {
+class Valoracio <<entity>> {
     - puntuacio: int
     - puntualitatEntrega: int
     - estatMenjar: int
     - comentari: String
 }
 
-class Xat {
+class Xat <<entity>> {
     - idXat: int
     + enviarMissatge(text: String)
 }
 
-class Missatge {
+class Missatge <<entity>> {
     - Data: Date
     - Contingut: String
     - idMissatge: String
@@ -99,56 +153,62 @@ class Missatge {
     + editarMissatge(text: String)
 }
 
-' --- SERVEIS EXTERNS (INTERFICIES) ---
-class ServeiPagament <<service>> {
-    + autenticarPagament(import: double, metode: String): boolean
-}
-
-class ServeiGPS <<service>> {
-    + calcularDistancia(origen: String, desti: String): double
-    + mostrarMapaSeguiment()
-}
 
 ' --- RELACIONS ---
 
-
-' Els rols penjant de l'usuari registrat
+' Herència Entitats (mantenim original)
 DadesUsuariRegistrat <|-- DadesComprador
 DadesUsuariRegistrat <|-- DadesCuiner
 DadesUsuariRegistrat <|-- DadesRepartidor
 
-' Relacions de Comandes
+' Relacions d'Entitats (mantenim original de la teva foto)
 DadesComprador "1" --> "0..*" Comanda : realitza
 DadesCuiner "1" --> "0..*" Comanda : prepara
 DadesRepartidor "0..1" --> "0..*" Comanda : lliura
-
-' El contingut de les comandes
-Comanda "0..*" --> "1..*" Menú : inclou
-
-' Vinculació dels Enums a la Comanda
+Comanda "0.." --> "1.." Menú : inclou
 Comanda --> EstatComanda : té estat
 Comanda --> ModalitatEntrega : s'entrega via
-
-' Composició de Menús i Plats
 DadesCuiner "1" --> "0..*" Menú : ofereix
 Menú "1" o-- "1..*" Plat : conté
 Plat "1" o-- "1..*" Ingredient : té
-
-' Funcionalitat de Plats Desitjats (RF-6-01: El comprador desitja un menú/plat que el cuiner pot veure)
 DadesComprador --> Menú : proposa 
 DadesCuiner --> Menú : consulta propostes 
-
-' Valoracions
 DadesComprador "1" --> "0..*" Valoracio : crea
 Valoracio "0..*" --> "1" DadesCuiner : puntua
-
-' Comunicació
 DadesComprador "1" -- "0..*" Xat
 DadesCuiner "1" -- "0..*" Xat
-Missatge "0..*" --* "1" Xat
+Missatge "0.." -- "1" Xat
 
-' Dependències de Serveis Externs
-DadesComprador --> ServeiPagament : paga a través de
-Comanda --> ServeiGPS : utilitza
+
+' --- RELACIONS DE LES NOVES CAPES (PATRÓ DEMANAT) ---
+
+' Gestió d'Usuaris General
+InterfUsuaris "1" -- "1" CtrlUsuaris
+CtrlUsuaris "1" -- "1..*" DadesUsuariRegistrat
+
+' Gestió Específica del Comprador
+InterfComprador "1" -- "1" CtrlComprador
+CtrlComprador "1" -- "1..*" DadesComprador
+
+' Gestió Específica del Cuiner
+InterfCuiner "1" -- "1" CtrlCuiner
+CtrlCuiner "1" -- "1..*" DadesCuiner
+
+' Gestió Específica del Repartidor
+InterfRepartidor "1" -- "1" CtrlRepartidor
+CtrlRepartidor "1" -- "1..*" DadesRepartidor
+
+' Gestió de Comandes
+InterfComandes "1" -- "1" CtrlComandes
+CtrlComandes "1" -- "1..*" Comanda
+
+' Gestió del Catàleg
+InterfCataleg "1" -- "1" CtrlCataleg
+CtrlCataleg "1" -- "1..*" Menú
+CtrlCataleg "1" -- "1..*" Plat
+
+' Gestió de Comunicació
+InterfComunicacio "1" -- "1" CtrlComunicacio
+CtrlComunicacio "1" -- "1..*" Xat
 
 @enduml
