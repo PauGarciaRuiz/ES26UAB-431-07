@@ -12,7 +12,6 @@ entity "DadesUsuari" as DadesUsuari
 entity "DadesCuiner" as DadesCuiner
 control "GestorGoogleMaps" as Gmaps
 
-== Flux Principal: Consultar Catàleg ==
 
 UNR -> Interf: accedirCataleg()
 activate Interf
@@ -58,7 +57,7 @@ opt Usuari activa filtre de proximitat
         GestorCat --> Interf: llistaUbicacions
         deactivate GestorCat
         
-        Interf -> Gmaps: calcularDistancies(ubicacioUsuari, llistaUbicacions)
+        Interf -> Gmaps: calcularDistancies(ubicacioUsuari, llistaUbicacions)*
         activate Gmaps
         Gmaps --> Interf: distanciesCalculades
         deactivate Gmaps
@@ -84,8 +83,6 @@ opt Usuari utilitza barra de cerca o filtres
     
     Interf --> Interf: mostraLlistaActualitzada(llistaRefinada)
 end
-
-== Flux Principal: Veure Detalls del Plat/Menú ==
 
 UNR -> Interf: seleccionarMenu(id)
 
