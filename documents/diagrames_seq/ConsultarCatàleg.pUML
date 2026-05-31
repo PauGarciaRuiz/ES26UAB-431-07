@@ -4,7 +4,7 @@ skinparam style strictuml
 skinparam SequenceMessageAlign center
 
 actor "Usuari no registrat" as UNR
-boundary "Interfície" as Interf
+boundary "InterfícieCataleg" as Interf
 control "GestorCataleg" as GestorCat
 control "GestorUsuari" as GestorUs
 entity "Menú" as Menu
