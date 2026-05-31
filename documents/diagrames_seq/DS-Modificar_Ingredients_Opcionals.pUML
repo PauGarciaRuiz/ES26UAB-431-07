@@ -1,0 +1,66 @@
+@startuml
+actor Comprador
+boundary "Interface Comandes"
+control "Gestor Comandes"
+entity Comanda
+actor "Google Maps" <<extern>>
+
+' --- 1 i 2. ACCEDIR A SELECCIÓ ---
+Comprador -> "Interface Comandes" : procedirComanda()
+activate "Interface Comandes"
+
+"Interface Comandes" -> "Gestor Comandes" : demanarOpcionsEntrega()
+activate "Gestor Comandes"
+
+"Gestor Comandes" --> "Interface Comandes" : mostrarOpcions()
+deactivate "Gestor Comandes"
+
+' --- A1. CANCEL·LACIÓ (Pot passar en qualsevol moment) ---
+opt A1 (Cancel·lació de selecció)
+    Comprador -> "Interface Comandes" : sortir()
+end
+
+' --- 3. SELECCIONAR MODALITAT ---
+Comprador -> "Interface Comandes" : seleccionarModalitat(modalitat)
+
+"Interface Comandes" -> "Gestor Comandes" : assignarModalitat(modalitat)
+activate "Gestor Comandes"
+
+' --- S1. REPARTIDORS NO DISPONIBLES ---
+opt S1 (Repartidors no disponibles)
+    "Gestor Comandes" --> "Interface Comandes" : Error_No_Repartidors()
+end
+
+' --- S2. FALTA D'ADREÇA ---
+opt S2 (Falta d'adreça)
+    "Gestor Comandes" --> "Interface Comandes" : Demanar_Adreça()
+end
+
+' --- CONNEXIÓ AMB GOOGLE MAPS I CÀLCUL DE PREU ---
+"Gestor Comandes" -> "Google Maps" : calcularDistancia()
+activate "Google Maps"
+
+"Google Maps" --> "Gestor Comandes" : retornarCostDesplaçament()
+deactivate "Google Maps"
+
+"Gestor Comandes" -> Comanda : calcularPreuTotal(costDesplaçament)
+activate Comanda
+
+Comanda --> "Gestor Comandes" : return
+deactivate Comanda
+
+"Gestor Comandes" --> "Interface Comandes" : mostrarResumAmbCost()
+deactivate "Gestor Comandes"
+
+' --- 4. CONTINUAR AL PAGAMENT ---
+Comprador -> "Interface Comandes" : continuarPagament()
+
+"Interface Comandes" -> "Gestor Comandes" : iniciarPagament()
+activate "Gestor Comandes"
+
+"Gestor Comandes" --> "Interface Comandes" : return
+deactivate "Gestor Comandes"
+
+deactivate "Interface Comandes"
+
+@enduml
