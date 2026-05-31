@@ -1,0 +1,51 @@
+@startuml
+actor Comprador
+boundary "Interfície Comanda"
+control "Gestor Comanda"
+entity Comanda
+
+' --- INICI ---
+Comprador -> "Interfície Comanda" : ProcedirCom()
+activate "Interfície Comanda"
+
+"Interfície Comanda" -> "Gestor Comanda" : ProcedirCom()
+activate "Gestor Comanda"
+
+"Gestor Comanda" -> Comanda : DemanarModalid()
+activate Comanda
+
+Comanda --> "Gestor Comanda" : return
+deactivate Comanda
+
+"Gestor Comanda" --> "Interfície Comanda" : MostrarModalid()
+deactivate "Gestor Comanda"
+
+' --- A1: CANCEL·LACIÓ ---
+opt A1 (Si client surt)
+    Comprador -> "Interfície Comanda" : Sortir()
+end
+
+' --- SELECCIÓ DE MODALITAT ---
+Comprador -> "Interfície Comanda" : SeleccionarModalid()
+
+"Interfície Comanda" -> "Gestor Comanda" : SeleccionarModalid()
+activate "Gestor Comanda"
+
+"Gestor Comanda" -> Comanda : SetModalid()
+
+' --- S1: SENSE REPARTIDORS ---
+opt S1 (Si no hi ha repartidors disp)
+    "Gestor Comanda" --> "Interfície Comanda" : ErrorNoREP()
+    "Interfície Comanda" --> Comprador : MostrarModalid
+end
+
+' --- S2: FALTA ADREÇA ---
+opt S2 (Falta d'adreça)
+    "Gestor Comanda" --> "Interfície Comanda" : ErrorNoAdreça()
+    "Interfície Comanda" --> Comprador : MostrarModalid
+end
+
+deactivate "Gestor Comanda"
+deactivate "Interfície Comanda"
+
+@enduml
