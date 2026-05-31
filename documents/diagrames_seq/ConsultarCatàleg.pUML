@@ -1,0 +1,109 @@
+@startuml
+autonumber
+skinparam style strictuml
+skinparam SequenceMessageAlign center
+
+actor "Usuari no registrat" as UNR
+boundary "Interfície" as Interf
+control "GestorCataleg" as GestorCat
+control "GestorUsuari" as GestorUs
+entity "Menú" as Menu
+entity "DadesUsuari" as DadesUsuari
+entity "DadesCuiner" as DadesCuiner
+control "GestorGoogleMaps" as Gmaps
+
+== Flux Principal: Consultar Catàleg ==
+
+UNR -> Interf: accedirCataleg()
+activate Interf
+
+Interf -> GestorCat: obtenirCataleg()
+activate GestorCat
+
+GestorCat -> Menu: getMenus()
+activate Menu
+Menu --> GestorCat: llistaMenus
+deactivate Menu
+
+GestorCat --> Interf: llistaMenus
+deactivate GestorCat
+
+Interf --> Interf: mostraLlista(llistaMenus)
+
+== Subflux A1: Filtrar per distància ==
+
+opt Usuari activa filtre de proximitat
+    UNR -> Interf: filtrarDistanciaRadi(radi)
+    Interf -> GestorUs: validaUbicacio()
+    GestorUs -> DadesUsuari: comprovarUbicacioCompte()
+    activate DadesUsuari
+    
+    alt Flux Alternatiu: Sense ubicació
+        DadesUsuari --> GestorUs: errorSenseUbicacio
+        GestorUs --> Interf: ubicacioNoRegistrada
+        Interf --> Interf: avísUbicacio()
+    else Ubicació vàlida
+        DadesUsuari --> GestorUs: ubicacioUsuari
+        GestorUs --> Interf: ubicacioUsuari
+        deactivate DadesUsuari
+        
+        Interf -> GestorCat: obtenirUbicacionsCuiners()
+        activate GestorCat
+        
+        GestorCat -> DadesCuiner: getUbicacions()
+        activate DadesCuiner
+        DadesCuiner --> GestorCat: llistaUbicacions
+        deactivate DadesCuiner
+        
+        GestorCat --> Interf: llistaUbicacions
+        deactivate GestorCat
+        
+        Interf -> Gmaps: calcularDistancies(ubicacioUsuari, llistaUbicacions)
+        activate Gmaps
+        Gmaps --> Interf: distanciesCalculades
+        deactivate Gmaps
+        
+        Interf -> GestorCat: filtrarPerRadi(radi, distanciesCalculades)
+        activate GestorCat
+        GestorCat --> Interf: llistaFiltradaRadi
+        deactivate GestorCat
+        
+        Interf --> Interf: mostraLlistaActualitzada(llistaFiltradaRadi)
+    end
+end
+
+== Subflux A2: Filtrar per criteris o cerca manual ==
+
+opt Usuari utilitza barra de cerca o filtres
+    UNR -> Interf: cercarOFiltrar(criteris, paraulaClau)
+    
+    Interf -> GestorCat: refinarCataleg(criteris)
+    activate GestorCat
+    GestorCat --> Interf: llistaRefinada
+    deactivate GestorCat
+    
+    Interf --> Interf: mostraLlistaActualitzada(llistaRefinada)
+end
+
+== Flux Principal: Veure Detalls del Plat/Menú ==
+
+UNR -> Interf: seleccionarMenu(id)
+
+Interf -> GestorCat: obtenirDetalls(id)
+activate GestorCat
+
+GestorCat -> DadesCuiner: getValoracioCuiner()
+activate DadesCuiner
+DadesCuiner --> GestorCat: valoracio
+deactivate DadesCuiner
+
+GestorCat --> Interf: fitxaDetallada(descripcio, ingredients, valoracio)
+deactivate GestorCat
+
+Interf --> Interf: mostraFitxa()
+
+UNR -> Interf: tancarFitxa()
+Interf --> Interf: mostraLlista()
+deactivate Interf
+
+@enduml
