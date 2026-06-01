@@ -44,32 +44,31 @@ opt Subflux A1: Proveïdor d'Identitat
         
         alt Nom Invàlid
             Interf --> Interf: mostrarError()
-        else Nom vàlid
-            note over UNR, Interf: Salta directament a seleccionarRol(rol)
         end
     end
-end
+else Flux Principal (Registre normal)
 
-UNR -> Interf: introduirDades(correu, contrasenya, nom)
-    
-Interf -> GestorUs: validarDades(correu, contrasenya, nom)
-activate GestorUs
-GestorUs -> DadesUsuari: comprovarCorreuINom(correu, nom)
-activate DadesUsuari
-DadesUsuari --> GestorUs: disponibilitat
-deactivate DadesUsuari
-GestorUs --> Interf: resultatValidacio
-deactivate GestorUs
-    
-alt Dades invàlides o en ús
-    Interf --> Interf: mostrarError()
-else Dades vàlides
-    Interf -> GestorUs: enviarCorreuVerificacio(correu)
-    GestorUs --> Interf: confirmacioEnviament
-    UNR -> Interf: clicarEnllacVerificacio()
-    Interf -> GestorUs: validarAlta()
-    GestorUs --> Interf: altaValidada
-end
+  UNR -> Interf: introduirDades(correu, contrasenya, nom)
+      
+  Interf -> GestorUs: validarDades(correu, contrasenya, nom)
+  activate GestorUs
+  GestorUs -> DadesUsuari: comprovarCorreuINom(correu, nom)
+  activate DadesUsuari
+  DadesUsuari --> GestorUs: disponibilitat
+  deactivate DadesUsuari
+  GestorUs --> Interf: resultatValidacio
+  deactivate GestorUs
+      
+  alt Dades invàlides o en ús
+      Interf --> Interf: mostrarError()
+  else Dades vàlides
+      Interf -> GestorUs: enviarCorreuVerificacio(correu)
+      GestorUs --> Interf: confirmacioEnviament
+      UNR -> Interf: clicarEnllacVerificacio()
+      Interf -> GestorUs: validarAlta()
+      GestorUs --> Interf: altaValidada
+  end
+end 
 
 UNR -> Interf: seleccionarRol(rol)
 
