@@ -1,0 +1,87 @@
+@startuml
+autonumber
+skinparam style strictuml
+skinparam SequenceMessageAlign center
+
+actor "Usuari no registrat" as UNR
+boundary "Interfície" as Interf
+control "GestorUsuari" as GestorUs
+control "GestorOAuth" as OAuth
+entity "DadesUsuari" as DadesUsuari
+    
+UNR -> Interf: AccedirPantallaRegistre()
+    
+opt Subflux A1: Proveïdor d'Identitat
+    UNR -> Interf: registrarAmbOAuth()
+    
+    Interf -> OAuth: sol·licitarDades()
+    activate OAuth
+    OAuth --> Interf: correuOAuth
+    deactivate OAuth
+    
+    Interf -> GestorUs: validarCorreu(correuOAuth)
+    activate GestorUs
+    GestorUs -> DadesUsuari: comprovarCorreu(correuOAuth)
+    activate DadesUsuari
+    DadesUsuari --> GestorUs: resultatCorreu
+    deactivate DadesUsuari
+    GestorUs --> Interf: estatCorreu
+    deactivate GestorUs
+    
+    alt Correu Invàlid
+        Interf --> Interf: mostrarError()
+    else Correu vàlid
+        
+        UNR -> Interf: introduirNom(nom)
+        Interf -> GestorUs: validarNom(nom)
+        activate GestorUs
+        GestorUs -> DadesUsuari: comprovarNom(nom)
+        activate DadesUsuari
+        DadesUsuari --> GestorUs: resultatNom
+        deactivate DadesUsuari
+        GestorUs --> Interf: estatNom
+        deactivate GestorUs
+        
+        alt Nom Invàlid
+            Interf --> Interf: mostrarError()
+        else Nom vàlid
+            note over UNR, Interf: Salta directament a seleccionarRol(rol)
+        end
+    end
+end
+
+UNR -> Interf: introduirDades(correu, contrasenya, nom)
+    
+Interf -> GestorUs: validarDades(correu, contrasenya, nom)
+activate GestorUs
+GestorUs -> DadesUsuari: comprovarCorreuINom(correu, nom)
+activate DadesUsuari
+DadesUsuari --> GestorUs: disponibilitat
+deactivate DadesUsuari
+GestorUs --> Interf: resultatValidacio
+deactivate GestorUs
+    
+alt Dades invàlides o en ús
+    Interf --> Interf: mostrarError()
+else Dades vàlides
+    Interf -> GestorUs: enviarCorreuVerificacio(correu)
+    GestorUs --> Interf: confirmacioEnviament
+    UNR -> Interf: clicarEnllacVerificacio()
+    Interf -> GestorUs: validarAlta()
+    GestorUs --> Interf: altaValidada
+end
+
+UNR -> Interf: seleccionarRol(rol)
+
+Interf -> GestorUs: finalitzarRegistre(dades, rol)
+activate GestorUs
+GestorUs -> DadesUsuari: crearCompte()
+activate DadesUsuari
+DadesUsuari --> GestorUs: compteCreat
+deactivate DadesUsuari
+GestorUs --> Interf: registreComplet
+deactivate GestorUs
+
+Interf --> Interf: iniciarSessio()
+
+@enduml
