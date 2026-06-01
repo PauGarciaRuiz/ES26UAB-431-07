@@ -1,0 +1,61 @@
+@startuml
+autonumber
+skinparam style strictuml
+skinparam SequenceMessageAlign center
+
+actor "Usuari no registrat" as UNR
+boundary "Interfície" as Interf
+control "GestorUsuari" as GestorUs
+control "GestorOAuth" as OAuth
+entity "DadesUsuari" as DadesUsuari
+
+UNR -> Interf: accedirIniciSessio()
+
+opt Subflux A1: Proveïdor d'Identitat
+    UNR -> Interf: iniciarSessioOAuth()
+    
+    Interf -> OAuth: sol·licitarDades()
+    activate OAuth
+    OAuth --> Interf: correuOAuth
+    deactivate OAuth
+    
+    Interf -> GestorUs: verificarExistenciaCorreu(correuOAuth)
+    activate GestorUs
+    GestorUs -> DadesUsuari: comprovarCorreu(correuOAuth)
+    activate DadesUsuari
+    DadesUsuari --> GestorUs: resultatCorreu
+    deactivate DadesUsuari
+    GestorUs --> Interf: estatValidacio
+    deactivate GestorUs
+
+else Flux Principal: Via manual
+    UNR -> Interf: introduirCredencials(correu, contrasenya)
+    UNR -> Interf: clicarEntrar()
+    
+    Interf -> GestorUs: validarCredencials(correu, contrasenya)
+    activate GestorUs
+    GestorUs -> DadesUsuari: comprovarCredencials(correu, contrasenya)
+    activate DadesUsuari
+    DadesUsuari --> GestorUs: resultatCredencials
+    deactivate DadesUsuari
+    GestorUs --> Interf: estatValidacio
+    deactivate GestorUs
+end
+
+alt Validació fallida (Credencials incorrectes o no registrat)
+    Interf --> Interf: mostrarError()
+else Validació correcta
+    Interf -> GestorUs: identificarCompte(correu)
+    activate GestorUs
+    GestorUs -> DadesUsuari: obtenirDades(correu)
+    activate DadesUsuari
+    DadesUsuari --> GestorUs: dadesCompte
+    deactivate DadesUsuari
+    GestorUs --> Interf: compteIdentificat
+    deactivate GestorUs
+    
+    Interf --> Interf: activarSessio()
+    Interf --> Interf: redirigirPantallaPrincipal()
+end
+
+@enduml
