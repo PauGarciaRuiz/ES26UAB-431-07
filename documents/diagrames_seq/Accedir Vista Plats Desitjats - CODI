@@ -1,0 +1,55 @@
+@startuml
+skinparam maxMessageSize 150
+
+title Accedir a vista de plats desitjats (Cuiner)
+
+actor Cuiner
+boundary InterficieComanda
+control GestorComanda
+entity Comanda
+entity DadesComprador
+entity Xat
+
+Cuiner -> InterficieComanda : accedir_menu_desitjos()
+activate InterficieComanda
+
+InterficieComanda -> GestorComanda : obtenir_plats_desitjats()
+activate GestorComanda
+
+GestorComanda -> Comanda : consultar_plats_desitjats()
+activate Comanda
+Comanda --> GestorComanda : llista_plats
+deactivate Comanda
+
+alt Llista buida (Flux alternatiu)
+    GestorComanda --> InterficieComanda : mostrar_missatge_cap_plat()
+    
+else Hi ha plats a valorar
+    GestorComanda --> InterficieComanda : mostrar_llista_plats()
+
+    alt Acceptar plat (Flux principal)
+        Cuiner -> InterficieComanda : acceptar_plat()
+        InterficieComanda -> GestorComanda : acceptar_plat()
+        GestorComanda -> Comanda : afegir_plat_comanda()
+        GestorComanda -> DadesComprador : notificar_acceptacio()
+        GestorComanda --> InterficieComanda : confirmacio_acceptacio()
+
+    else Rebutjar plat (Subflux A2)
+        Cuiner -> InterficieComanda : rebutjar_plat()
+        InterficieComanda -> GestorComanda : rebutjar_plat()
+        GestorComanda -> Comanda : tancar_solicitud()
+        GestorComanda -> DadesComprador : notificar_rebuig()
+        GestorComanda --> InterficieComanda : confirmacio_rebuig()
+
+    else Iniciar Xat (Subflux A1)
+        Cuiner -> InterficieComanda : iniciar_chat()
+        InterficieComanda -> GestorComanda : iniciar_chat()
+        GestorComanda -> Xat : comunicar_se()
+        Xat --> GestorComanda : resposta_xat()
+    end
+end
+
+deactivate GestorComanda
+deactivate InterficieComanda
+
+@enduml
