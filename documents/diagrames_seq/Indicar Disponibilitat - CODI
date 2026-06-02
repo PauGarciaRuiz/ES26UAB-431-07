@@ -1,0 +1,53 @@
+@startuml
+skinparam maxMessageSize 150
+title Indicar Disponibilitat (Cuiner)
+
+actor Cuiner
+boundary InterficeCuiner
+control GestorCuiner
+entity DadesCuiner
+entity Comanda
+
+Cuiner -> InterficeCuiner : accedir_estat_compte()
+InterficeCuiner -> GestorCuiner : accedir_estat_compte()
+GestorCuiner -> DadesCuiner : veure_estats()
+DadesCuiner --> GestorCuiner : retornar_estats()
+GestorCuiner --> InterficeCuiner : mostrar_estats()
+
+Cuiner -> InterficeCuiner : escollir_estat()
+InterficeCuiner -> GestorCuiner : registrar_eleccio_temporal()
+
+alt Marcat casella per error i vol modificar
+    Cuiner -> InterficeCuiner : clicar_modificar()
+    Cuiner -> InterficeCuiner : escollir_estat_nou()
+    InterficeCuiner -> GestorCuiner : actualitzar_eleccio_temporal()
+end
+
+' Ahora sí, el actor pulsa aplicar y se guarda de verdad
+Cuiner -> InterficeCuiner : aplicar_canvis()
+InterficeCuiner -> GestorCuiner : aplicar_canvis()
+GestorCuiner -> DadesCuiner : registrar_estat()
+DadesCuiner --> GestorCuiner : confirmacio
+GestorCuiner --> InterficeCuiner : confirma_canvi()
+
+alt Marca casella per error i se n'adona tard
+    Cuiner -> InterficeCuiner : accedeix_estat_compte()
+    InterficeCuiner -> GestorCuiner : accedeix_estat_compte()
+    
+    ' Selecciona la opción específica de desconectar
+    Cuiner -> InterficeCuiner : seleccionar_desconnectar()
+    InterficeCuiner -> GestorCuiner : solicitar_desconnexio()
+    
+    GestorCuiner -> DadesCuiner : comprovar_usos_restants()
+    DadesCuiner --> GestorCuiner : comunicar_alerta()
+    GestorCuiner --> InterficeCuiner : comunicar_alerta()
+    
+    Cuiner -> InterficeCuiner : acceptar_condicions()
+    InterficeCuiner -> GestorCuiner : confirmar_desconnexio()
+    
+    GestorCuiner -> DadesCuiner : registrar_desconnexio()
+    GestorCuiner -> Comanda : anul_lar_comandes()
+    GestorCuiner --> InterficeCuiner : confirma_anul_lacio()
+end
+
+@enduml
