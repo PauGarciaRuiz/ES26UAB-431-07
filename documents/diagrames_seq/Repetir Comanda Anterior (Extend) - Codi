@@ -1,0 +1,70 @@
+@startuml
+skinparam maxMessageSize 150
+
+actor Comprador
+participant "Interficie\nComanda" as Interficie
+participant "Gestor\nComanda" as Gestor
+participant "Dades\nComprador" as DadesComprador
+participant "Comanda" as Comanda
+participant "Dades\nCuiner" as DadesCuiner
+actor "Entidad\nBancaria\n«actor externo»" as Banco
+actor "Google\nMaps\n«actor externo»" as Maps
+
+Comprador -> Interficie: realitzar_comanda()
+activate Interficie
+
+Interficie -> Gestor: realitzar_comanda()
+activate Gestor
+
+Gestor -> DadesComprador: obtener_historial()
+activate DadesComprador
+DadesComprador --> Gestor: «return»
+deactivate DadesComprador
+
+Gestor -> Comanda: seleccionar_comanda_repetida()
+activate Comanda
+Comanda --> Gestor: «return»
+deactivate Comanda
+
+Gestor -> DadesCuiner: comprovar_disponibilitat()
+activate DadesCuiner
+DadesCuiner --> Gestor: «return»
+deactivate DadesCuiner
+
+Gestor --> Interficie: mostrar_disponibilitat()
+
+alt if_disponible
+    Comprador -> Interficie: afegir_pagament()
+    Interficie -> Gestor: afegir_pagament()
+    
+    Gestor -> Banco: validar_pagament()
+    activate Banco
+    Banco --> Gestor: «return» confirmació
+    deactivate Banco
+    
+    Gestor -> Comanda: actualitza_pagament()
+    activate Comanda
+    deactivate Comanda
+
+    Comprador -> Interficie: afegir_direcció()
+    Interficie -> Gestor: afegir_direcció()
+    
+    Gestor -> Maps: validar_direcció(adreça)
+    activate Maps
+    Maps --> Gestor: «return» coordenades
+    deactivate Maps
+    
+    Gestor -> Comanda: actualitza_direcció(coordenades)
+    activate Comanda
+    deactivate Comanda
+
+    Interficie -> Gestor: finalitzar_comanda()
+
+else if_no_disponible
+    Interficie -> Gestor: abortar_comanda()
+end
+
+deactivate Gestor
+deactivate Interficie
+
+@enduml
