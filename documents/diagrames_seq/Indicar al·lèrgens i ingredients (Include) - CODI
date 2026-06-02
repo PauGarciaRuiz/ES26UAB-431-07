@@ -1,0 +1,61 @@
+@startuml
+skinparam maxMessageSize 150
+title Indicar Al·lèrgens i Ingredients (Include)
+
+actor Cuiner
+boundary InterficieCuiner
+control GestorCataleg
+entity Menu
+entity Plat
+entity Ingredient
+
+Cuiner -> InterficieCuiner : seleccionar_opcio_ingredients()
+InterficieCuiner -> GestorCataleg : iniciar_indicacio()
+
+loop Per cada producte del menú
+    Cuiner -> InterficieCuiner : entrar_ingredients()
+    Cuiner -> InterficieCuiner : seleccionar_etiquetes()
+    
+    loop Fins que no hi hagi res buit
+        Cuiner -> InterficieCuiner : seleccionar_revisar()
+        InterficieCuiner -> GestorCataleg : validar_buits()
+        
+        alt [Secció buida]
+            GestorCataleg --> InterficieCuiner : mostrar_alerta("Modifica o cancel·la")
+            Cuiner -> InterficieCuiner : modificar_caselles()
+        else [Revisió correcta]
+            GestorCataleg --> InterficieCuiner : confirmacio_revisio()
+        end
+    end
+
+    Cuiner -> InterficieCuiner : seleccionar_terminar_indicacio()
+    InterficieCuiner -> GestorCataleg : guardar_temporal()
+    GestorCataleg --> InterficieCuiner : mostrar_missatge("Al·lèrgens indicats, pots modificar")
+end
+
+opt [Cuiner veu error i vol modificar (Subflux A2)]
+    Cuiner -> InterficieCuiner : clicar_fer_canvi()
+    InterficieCuiner -> GestorCataleg : habilitar_edicio()
+    
+    Cuiner -> InterficieCuiner : seleccionar_plat_error()
+    Cuiner -> InterficieCuiner : modificar_error()
+    Cuiner -> InterficieCuiner : aplicar_canvis()
+    InterficieCuiner -> GestorCataleg : registrar_canvis()
+end
+
+Cuiner -> InterficieCuiner : clicar_finalitzat()
+InterficieCuiner -> GestorCataleg : processar_finalitzacio()
+
+alt [Ingredient bloquejat]
+    GestorCataleg --> InterficieCuiner : notificar_error("Ingredient il·legal")
+    GestorCataleg -> Menu : tancar_menu()
+else [Etiquetes contradictòries]
+    GestorCataleg --> InterficieCuiner : notificar_error("Etiquetes contradictòries")
+    GestorCataleg -> Menu : tancar_menu()
+else [Sense errors (Flux Principal)]
+    GestorCataleg -> Ingredient : vincular_allergens_ingredients()
+    Ingredient --> GestorCataleg : confirmar_vinculacio()
+    GestorCataleg --> InterficieCuiner : confirmar_finalitzacio()
+end
+
+@enduml
