@@ -1,0 +1,47 @@
+@startuml
+skinparam maxMessageSize 150
+title Oferir Plats i Menús (Cuiner)
+
+actor Cuiner
+boundary InterficieCuiner
+control GestorCataleg
+entity Menu
+entity Plat
+entity Ingredient
+
+' Pas 1 i 2
+Cuiner -> InterficieCuiner : accedir_menus_plats()
+InterficieCuiner -> GestorCataleg : consultar_cataleg()
+GestorCataleg --> InterficieCuiner : mostrar_opcions()
+
+Cuiner -> InterficieCuiner : clicar_afegir_plats_menus()
+
+' Pas 3, 4 i 5 (El Actor interactúa con la Interfaz)
+Cuiner -> InterficieCuiner : omplir_caselles()
+Cuiner -> InterficieCuiner : escollir_revisar_menu()
+Cuiner -> InterficieCuiner : indicar_allergens_ingredients()
+
+' Pas 6 (El Actor guarda y el Gestor procesa)
+Cuiner -> InterficieCuiner : clicar_afegeix_menu()
+InterficieCuiner -> GestorCataleg : validar_i_guardar(dades)
+
+' Validació i Pas 7
+alt No pot afegir (Nom bloquejat / Repetit)
+    GestorCataleg --> InterficieCuiner : notificar_error()
+    Cuiner -> InterficieCuiner : acceptar_notificacio()
+    InterficieCuiner -> GestorCataleg : confirmar_tancament()
+    GestorCataleg -> GestorCataleg : abortar_creacio()
+    
+else Correcte
+    ' Aquí el sistema ya sabe qué ha rellenado el usuario
+    alt Només un plat (Subflux A1)
+        GestorCataleg -> Plat : crear_plat()
+    else Menú complet
+        GestorCataleg -> Menu : crear_menu()
+    end
+    
+    GestorCataleg -> Ingredient : registrar_ingredients_allergens()
+    GestorCataleg --> InterficieCuiner : actualitzar_interficie()
+end
+
+@enduml
