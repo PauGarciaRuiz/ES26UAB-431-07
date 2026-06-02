@@ -1,0 +1,39 @@
+@startuml
+title Acceptar Comandes (Cuiner)
+
+actor Cuiner
+boundary InterficieComanda
+control GestorComanda
+entity Comanda
+entity Ingredients
+entity Xat
+
+Cuiner -> InterficieComanda : accedeix_notificacio()
+InterficieComanda -> GestorComanda : obrir_menu_comandes()
+GestorComanda -> Comanda : escollir_comanda()
+Comanda -> Ingredients : revisar_ingredients()
+
+alt No pot acceptar
+    GestorComanda --> InterficieComanda : tancar_comanda()
+
+else Falta ingredient
+    Cuiner -> InterficieComanda : iniciar_chat()
+    InterficieComanda -> GestorComanda : iniciar_chat()
+    GestorComanda -> Xat : comunicar_se()
+    Xat --> GestorComanda : resposta_xat()
+    
+    alt No arriben a acord
+        GestorComanda --> InterficieComanda : tancar_comanda()
+    else 
+    end
+end
+
+GestorComanda -> Comanda : indicar_temps_estimat()
+
+Cuiner -> InterficieComanda : acceptar_comanda()
+InterficieComanda -> GestorComanda : acceptar_comanda()
+GestorComanda -> Comanda : canvi_estat()
+Comanda --> GestorComanda : confirmacio_validacio()
+GestorComanda --> InterficieComanda : confirmacio_validacio()
+
+@enduml
