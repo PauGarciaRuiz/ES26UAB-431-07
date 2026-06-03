@@ -1,0 +1,30 @@
+@startuml
+autonumber
+skinparam style strictuml
+skinparam SequenceMessageAlign center
+
+actor "Usuari no registrat" as UNR
+boundary "Interfície" as Interf
+control "GestorUsuari" as GestorUs
+
+note over UNR, GestorUs: [Include] Invocat automàticament des del CU: Registrar-se, al cridar seleccionar rol (pas 27 de Registrar-se)
+
+Interf --> Interf: mostrarPantallaRols("Comprador", "Cuiner", "Repartidor")
+
+UNR -> Interf: seleccionarRol(rol)
+UNR -> Interf: confirmarFinalitzar()
+
+Interf -> GestorUs: validarSeleccioRol(rol)
+activate GestorUs
+
+alt Cap rol seleccionat (rol buit)
+    GestorUs --> Interf: errorSeleccioBuida
+    Interf --> Interf: mostrarError("Selecció obligatòria: si us plau, tria un perfil per continuar")
+else Rol vàlid
+    GestorUs --> Interf: rolValidatAssignat
+    deactivate GestorUs
+    
+    note over UNR, GestorUs: Finalitza i retorna el control al CU: Registrar-se per desar definitivament el compte
+end
+
+@enduml
