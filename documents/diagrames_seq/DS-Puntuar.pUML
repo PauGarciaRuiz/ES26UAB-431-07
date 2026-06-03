@@ -1,0 +1,55 @@
+@startuml
+actor Comprador
+boundary "Interfície Comandes"
+control "Gestor Comandes"
+entity Comanda
+entity Valoracio
+
+' --- 1 i 2. INICI PUNTUACIÓ ---
+Comprador -> "Interfície Comandes" : SeleccionarPuntuarComanda()
+activate "Interfície Comandes"
+
+"Interfície Comandes" -> "Gestor Comandes" : IniciarPuntuacio()
+activate "Gestor Comandes"
+
+' --- A2. HISTORIAL BUIT ---
+opt A2 (Historial buit)
+    "Gestor Comandes" --> "Interfície Comandes" : ErrorHistorialBuit()
+end
+
+"Gestor Comandes" -> Comanda : ComprovarEstat()
+activate Comanda
+Comanda --> "Gestor Comandes" : return
+deactivate Comanda
+
+"Gestor Comandes" --> "Interfície Comandes" : MostrarFormulari()
+deactivate "Gestor Comandes"
+
+' --- A1. SORTIDA DE LA VISTA ---
+opt A1 (Sortida de la vista)
+    Comprador -> "Interfície Comandes" : Cancel·larPuntuacio()
+end
+
+' --- 3 i 4. AVALUAR I CONFIRMAR ---
+Comprador -> "Interfície Comandes" : ConfirmarValoracio(puntuacio, comentari)
+
+"Interfície Comandes" -> "Gestor Comandes" : ValidarIGuardarValoracio(puntuacio, comentari)
+activate "Gestor Comandes"
+
+' --- 5. VALIDACIÓ (S1. CAMPS OBLIGATORIS BUITS) ---
+opt S1 (Camps obligatoris buits)
+    "Gestor Comandes" --> "Interfície Comandes" : ErrorCampsBuits()
+end
+
+' --- 6. CREACIÓ I AGRAÏMENT ---
+"Gestor Comandes" -> Valoracio : CrearValoracio(puntuacio, comentari)
+activate Valoracio
+Valoracio --> "Gestor Comandes" : return
+deactivate Valoracio
+
+"Gestor Comandes" --> "Interfície Comandes" : MostrarAgraimentITornar()
+deactivate "Gestor Comandes"
+
+deactivate "Interfície Comandes"
+
+@enduml
