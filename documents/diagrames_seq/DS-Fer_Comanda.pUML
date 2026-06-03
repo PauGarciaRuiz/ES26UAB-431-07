@@ -1,0 +1,83 @@
+@startuml
+actor Comprador
+boundary "Interfície Comandes"
+control "Gestor Comandes"
+entity Comanda
+entity Plat
+
+' --- 1 i 2. AFEGIR PLATS AL CARRET ---
+Comprador -> "Interfície Comandes" : AfegirPlatAlCarret()
+activate "Interfície Comandes"
+
+"Interfície Comandes" -> "Gestor Comandes" : AfegirPlat()
+activate "Gestor Comandes"
+
+' --- S1: PLATS ESGOTATS ---
+opt S1 (Plats esgotats)
+    "Gestor Comandes" -> Plat : ComprovarDisponibilitat()
+    activate Plat
+    Plat --> "Gestor Comandes" : ErrorEsgotat()
+    deactivate Plat
+    
+    "Gestor Comandes" --> "Interfície Comandes" : DemanarActualitzarCarret()
+end
+
+"Gestor Comandes" -> Comanda : DesarAlCarret()
+activate Comanda
+Comanda --> "Gestor Comandes" : return
+deactivate Comanda
+
+"Gestor Comandes" --> "Interfície Comandes" : return
+deactivate "Gestor Comandes"
+
+' --- 3 i 4. ACCEDIR AL CARRET ---
+Comprador -> "Interfície Comandes" : AccedirCarret()
+
+"Interfície Comandes" -> "Gestor Comandes" : ObtenirResumComanda()
+activate "Gestor Comandes"
+
+"Gestor Comandes" -> Comanda : ObtenirDetallsIPreu()
+activate Comanda
+Comanda --> "Gestor Comandes" : return
+deactivate Comanda
+
+"Gestor Comandes" --> "Interfície Comandes" : MostrarResumIPreu()
+deactivate "Gestor Comandes"
+
+' --- S2: TREURE PLATS ---
+opt S2 (Treure plats)
+    Comprador -> "Interfície Comandes" : TreurePlat()
+    
+    "Interfície Comandes" -> "Gestor Comandes" : EliminarPlat()
+    activate "Gestor Comandes"
+    "Gestor Comandes" -> Comanda : ActualitzarCarret()
+    activate Comanda
+    Comanda --> "Gestor Comandes" : return
+    deactivate Comanda
+    
+    "Gestor Comandes" --> "Interfície Comandes" : MostrarResumIPreu()
+    deactivate "Gestor Comandes"
+end
+
+' --- 5 i 6. PROCEDIR AMB LA COMANDA ---
+Comprador -> "Interfície Comandes" : ProcedirComanda()
+
+"Interfície Comandes" -> "Gestor Comandes" : ConfirmarCarret()
+activate "Gestor Comandes"
+
+' --- A1: CARRET BUIT ---
+alt A1 (Carret buit)
+    "Gestor Comandes" -> Comanda : ComprovarEstatCarret()
+    activate Comanda
+    Comanda --> "Gestor Comandes" : ErrorCarretBuit()
+    deactivate Comanda
+    
+    "Gestor Comandes" --> "Interfície Comandes" : MostrarAvisITornar()
+else (Carret amb productes)
+    "Gestor Comandes" --> "Interfície Comandes" : IniciarSeleccioEntrega()
+    ' L'<<include>> a Seleccionar Modalitat d'entrega comença a partir d'aquí
+end
+
+deactivate "Gestor Comandes"
+deactivate "Interfície Comandes"
+@enduml
