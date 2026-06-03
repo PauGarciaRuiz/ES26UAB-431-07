@@ -1,0 +1,31 @@
+@startuml
+autonumber
+skinparam style strictuml
+skinparam SequenceMessageAlign center
+
+actor "Usuari no registrat" as UNR
+boundary "Interfície" as Interf
+control "GestorConfiguracio" as GestorConf
+
+UNR -> Interf: clicarSelectorIdioma()
+Interf --> Interf: mostrarDesplegable("Català", "Castellà", "Anglès")
+
+alt Subflux A1: Cancel·lar
+    UNR -> Interf: clicarForaOTancar()
+    Interf --> Interf: tancarDesplegable()
+else Flux Principal: Seleccionar idioma
+    UNR -> Interf: seleccionarIdioma(nouIdioma)
+    
+    Interf -> GestorConf: obtenirTextosTraduïts(nouIdioma)
+    activate GestorConf
+    
+    ' El gestor processa la petició internament sense consultar la BD
+    GestorConf --> Interf: diccionariTextos
+    deactivate GestorConf
+    
+    Interf --> Interf: desarPreferenciaLocal(nouIdioma)
+    Interf --> Interf: actualitzarTextosPantalla(diccionariTextos)
+    Interf --> Interf: tancarDesplegable()
+end
+
+@enduml
