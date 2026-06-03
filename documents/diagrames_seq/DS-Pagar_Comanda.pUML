@@ -2,10 +2,10 @@
 actor Comprador
 boundary "Interfície Comandes"
 control "Gestor Comandes"
-control "Gestor Maps"
-control "Gestor Pagament"
 entity Comanda
 entity DadesComprador
+actor "Google Maps" <<extern>>
+actor "PayPal / Banc" <<extern>>
 
 ' --- 1, 2 i 3. INICI I CÀLCUL DE PREU AMB GOOGLE MAPS ---
 Comprador -> "Interfície Comandes" : ContinuarPagament()
@@ -19,11 +19,11 @@ activate Comanda
 Comanda --> "Gestor Comandes" : dades (productes, adreces)
 deactivate Comanda
 
-' Càlcul de distància delegat al nou gestor
-"Gestor Comandes" -> "Gestor Maps" : calcularDistancia(origen, desti)
-activate "Gestor Maps"
-"Gestor Maps" --> "Gestor Comandes" : distancia (km)
-deactivate "Gestor Maps"
+' Càlcul de distància delegat a l'actor extern
+"Gestor Comandes" -> "Google Maps" : calcularDistancia(origen, desti)
+activate "Google Maps"
+"Google Maps" --> "Gestor Comandes" : distancia (km)
+deactivate "Google Maps"
 
 ' --- S2. PUNTS DE SUBSCRIPCIÓ ---
 opt S2 (Punts de subscripció)
@@ -41,23 +41,22 @@ deactivate Comanda
 "Gestor Comandes" --> "Interfície Comandes" : MostrarPreuFinal(preuFinal)
 deactivate "Gestor Comandes"
 
-' --- 4 i 5. PROCÉS DE PAGAMENT AMB GESTOR BANCARI ---
+' --- 4 i 5. PROCÉS DE PAGAMENT ---
 Comprador -> "Interfície Comandes" : PagarComanda()
 
 "Interfície Comandes" -> "Gestor Comandes" : ProcessarPagament()
 activate "Gestor Comandes"
 
-"Gestor Comandes" -> "Gestor Pagament" : AutenticarPagament(import)
-activate "Gestor Pagament"
+"Gestor Comandes" -> "PayPal / Banc" : AutenticarPagament(import)
+activate "PayPal / Banc"
 
 ' --- A1. ERROR EN EL PAGAMENT ---
 alt A1 (Error en el pagament)
-    "Gestor Pagament" --> "Gestor Comandes" : TransaccioDenegada()
+    "PayPal / Banc" --> "Gestor Comandes" : TransaccioDenegada()
     "Gestor Comandes" --> "Interfície Comandes" : ErrorPagament()
-    "Interfície Comandes" --> Comprador : MostrarMissatgeError()
 else Pagament Correcte
-    "Gestor Pagament" --> "Gestor Comandes" : TransaccioExitosa()
-    deactivate "Gestor Pagament"
+    "PayPal / Banc" --> "Gestor Comandes" : TransaccioExitosa()
+    deactivate "PayPal / Banc"
 
     ' --- 6. CONFIRMACIÓ I FACTURA ---
     "Gestor Comandes" -> Comanda : actulitzarEstat(PAGADA)
@@ -67,8 +66,6 @@ else Pagament Correcte
 
     "Gestor Comandes" --> "Interfície Comandes" : ConfirmacioIPresentarFactura()
     deactivate "Gestor Comandes"
-    
-    "Interfície Comandes" --> Comprador : MostrarFactura()
 end
 
 deactivate "Interfície Comandes"
