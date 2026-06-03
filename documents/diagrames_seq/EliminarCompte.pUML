@@ -1,0 +1,62 @@
+@startuml
+autonumber
+skinparam style strictuml
+skinparam SequenceMessageAlign center
+
+actor "Usuari registrat" as UR
+boundary "Interfície" as Interf
+control "GestorUsuari" as GestorUs
+entity "DadesUsuari" as DadesUsuari
+boundary "InterfPagament" as InterfPag
+
+UR -> Interf: clicarEliminarCompte()
+Interf --> Interf: mostrarAdvertencia("Conseqüències irreversibles")
+
+alt Subflux A1: Cancel·lar
+    UR -> Interf: clicarCancellar()
+    Interf --> Interf: tancarAdvertenciaITornar()
+else Flux Principal: Confirmar
+    UR -> Interf: confirmarEliminacio(contrasenya)
+    
+    Interf -> GestorUs: validarContrasenya(contrasenya)
+    activate GestorUs
+    GestorUs -> DadesUsuari: comprovarContrasenya(contrasenya)
+    activate DadesUsuari
+    DadesUsuari --> GestorUs: resultatContrasenya
+    deactivate DadesUsuari
+    GestorUs --> Interf: estatContrasenya
+    deactivate GestorUs
+    
+    alt Contrasenya incorrecta
+        Interf --> Interf: mostrarError("Contrasenya incorrecta. Torna-ho a intentar")
+    else Contrasenya correcta
+        Interf -> GestorUs: processarBaixa()
+        activate GestorUs
+        
+        GestorUs -> DadesUsuari: comprovarSubscripcioActiva()
+        activate DadesUsuari
+        DadesUsuari --> GestorUs: teSubscripcio
+        deactivate DadesUsuari
+        
+        opt Té subscripció
+            GestorUs -> InterfPag: cancellarSubscripcio()
+            activate InterfPag
+            InterfPag --> GestorUs: confirmacioCancelacio
+            deactivate InterfPag
+        end
+        
+        GestorUs -> DadesUsuari: donarDeBaixa()
+        activate DadesUsuari
+        DadesUsuari --> GestorUs: compteEliminat
+        deactivate DadesUsuari
+        
+        GestorUs --> Interf: baixaCompletada
+        deactivate GestorUs
+        
+        Interf --> Interf: tancarSessio()
+        Interf --> Interf: mostrarMissatge("Compte eliminat correctament")
+        Interf --> Interf: redirigirPantallaBenvinguda()
+    end
+end
+
+@enduml
