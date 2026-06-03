@@ -36,13 +36,11 @@ activate "Gestor Comanda"
 ' --- S1: SENSE REPARTIDORS ---
 opt S1 (Si no hi ha repartidors disp)
     "Gestor Comanda" --> "Interfície Comanda" : ErrorNoREP()
-    "Interfície Comanda" --> Comprador : MostrarModalid
 end
 
 ' --- S2: FALTA ADREÇA ---
 opt S2 (Falta d'adreça)
     "Gestor Comanda" --> "Interfície Comanda" : ErrorNoAdreça()
-    "Interfície Comanda" --> Comprador : MostrarModalid
 end
 
 deactivate "Gestor Comanda"
