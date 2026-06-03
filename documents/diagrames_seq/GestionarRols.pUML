@@ -1,0 +1,48 @@
+@startuml
+autonumber
+skinparam style strictuml
+skinparam SequenceMessageAlign center
+
+actor "Usuari registrat" as UR
+boundary "Interfície" as Interf
+control "GestorUsuari" as GestorUs
+entity "DadesUsuari" as DadesUsuari
+
+
+UR -> Interf: accedirGestionarRols()
+
+Interf -> GestorUs: obtenirRolsUsuari()
+activate GestorUs
+GestorUs -> DadesUsuari: getRols()
+activate DadesUsuari
+DadesUsuari --> GestorUs: rolsActualIDisponibles
+deactivate DadesUsuari
+GestorUs --> Interf: dadesRols
+deactivate GestorUs
+
+Interf --> Interf: mostrarRols(actiu, disponibles)
+
+
+opt Subflux A1: Cancel·lar
+    UR -> Interf: clicarCancelar()
+    Interf --> Interf: tancarGestioRols()
+else Flux Principal: Canviar Rol
+    UR -> Interf: seleccionarNouRol(nouRol)
+    UR -> Interf: confirmarCanvi()
+    
+    Interf -> GestorUs: actualitzarRolActiu(nouRol)
+    activate GestorUs
+    
+    GestorUs -> DadesUsuari: actualitzarRol(nouRol)
+    activate DadesUsuari
+    DadesUsuari --> GestorUs: confirmacio
+    deactivate DadesUsuari
+    
+    GestorUs --> Interf: sessioActualitzada
+    deactivate GestorUs
+    
+    Interf --> Interf: mostrarMissatge("Canvi de rol confirmat")
+    Interf --> Interf: recarregarInterficie(nouRol)
+end
+
+@enduml
