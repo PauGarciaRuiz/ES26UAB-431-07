@@ -1,0 +1,58 @@
+@startuml
+actor Comprador
+boundary "Interfície Comandes"
+control "Gestor Comandes"
+entity Comanda
+
+' --- 1 i 2. ACCEDIR A L'HISTORIAL ---
+Comprador -> "Interfície Comandes" : VeureComandesAnteriors()
+activate "Interfície Comandes"
+
+"Interfície Comandes" -> "Gestor Comandes" : ObtenirComandesAnteriors()
+activate "Gestor Comandes"
+
+"Gestor Comandes" -> Comanda : BuscarComandesUsuari()
+activate Comanda
+Comanda --> "Gestor Comandes" : return
+deactivate Comanda
+
+' --- A2. HISTORIAL BUIT ---
+opt A2 (Historial buit)
+    "Gestor Comandes" --> "Interfície Comandes" : ErrorHistorialBuit()
+end
+
+"Gestor Comandes" --> "Interfície Comandes" : MostrarLlistaComandes()
+deactivate "Gestor Comandes"
+
+' --- S1. ORDENACIÓ DE COMANDES ---
+opt S1 (Ordenació de comandes anteriors)
+    Comprador -> "Interfície Comandes" : OrdenarLlista(criteri)
+    
+    "Interfície Comandes" -> "Gestor Comandes" : OrdenarComandes(criteri)
+    activate "Gestor Comandes"
+    "Gestor Comandes" --> "Interfície Comandes" : return
+    deactivate "Gestor Comandes"
+end
+
+' --- A1. SORTIDA DE LA VISTA ---
+opt A1 (Sortida de la vista)
+    Comprador -> "Interfície Comandes" : Sortir()
+end
+
+' --- 3 i 4. SELECCIONAR I VEURE DETALLS ---
+Comprador -> "Interfície Comandes" : SeleccionarComanda()
+
+"Interfície Comandes" -> "Gestor Comandes" : DemanarDetallsComanda()
+activate "Gestor Comandes"
+
+"Gestor Comandes" -> Comanda : ObtenirDetalls()
+activate Comanda
+Comanda --> "Gestor Comandes" : return
+deactivate Comanda
+
+"Gestor Comandes" --> "Interfície Comandes" : MostrarDetallsComanda()
+deactivate "Gestor Comandes"
+
+deactivate "Interfície Comandes"
+
+@enduml
