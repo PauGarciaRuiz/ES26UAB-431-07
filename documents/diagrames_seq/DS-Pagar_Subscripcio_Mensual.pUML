@@ -1,0 +1,76 @@
+@startuml
+actor Comprador
+boundary "Interfície Usuari"
+control "Gestor Usuari"
+entity "Càtaleg"
+entity "dades Usuari"
+control "Gestor Pagament"
+actor "Entitat bancària" <<extern>>
+
+' --- SELECCIÓ ---
+Comprador -> "Interfície Usuari" : SelecSubscripcio()
+activate "Interfície Usuari"
+
+"Interfície Usuari" -> "Gestor Usuari" : SelecSubscripcio()
+activate "Gestor Usuari"
+
+"Gestor Usuari" -> "Càtaleg" : obtenirPreuSub()
+activate "Càtaleg"
+"Càtaleg" --> "Gestor Usuari" : return
+deactivate "Càtaleg"
+
+"Gestor Usuari" --> "Interfície Usuari" : MostrarInfoSub()
+deactivate "Gestor Usuari"
+
+' --- A1: SORTIDA ---
+opt A1: Sortida Pantalla
+    Comprador -> "Interfície Usuari" : Sortir()
+end
+
+' --- PAGAMENT ---
+Comprador -> "Interfície Usuari" : PagarSub()
+"Interfície Usuari" -> "Gestor Usuari" : PagarSub()
+activate "Gestor Usuari"
+
+' --- S1: SENSE MÈTODE VINCULAT ---
+opt S1(Sense mètode de pagament vinculat)
+    "Gestor Usuari" -> "dades Usuari" : Autenticar_metode_pag()
+    activate "dades Usuari"
+    "dades Usuari" --> "Gestor Usuari" : ErrorSenseMetode()
+    deactivate "dades Usuari"
+    
+    "Gestor Usuari" --> "Interfície Usuari" : DemanarMetode()
+    "Interfície Usuari" --> "Gestor Usuari" : return
+end
+
+' --- PROCÉS DE TRANSACCIÓ ---
+"Gestor Usuari" -> "Gestor Pagament" : ProcedirPagament()
+activate "Gestor Pagament"
+
+"Gestor Pagament" -> "Entitat bancària" : ProcessarPagament()
+activate "Entitat bancària"
+
+' --- A2: ERROR PAGAMENT I ALTERNATIVA ---
+alt A2(Error en el pagament)
+    "Entitat bancària" --> "Gestor Pagament" : ErrorFons()
+    "Gestor Pagament" --> "Gestor Usuari" : ErrorPagament()
+    "Gestor Usuari" --> "Interfície Usuari" : MostrarErrorPag()
+else (Pagament correcte)
+    "Entitat bancària" --> "Gestor Pagament" : return
+    deactivate "Entitat bancària"
+    
+    "Gestor Pagament" --> "Gestor Usuari" : return
+    deactivate "Gestor Pagament"
+    
+    "Gestor Usuari" -> "dades Usuari" : ActivarSubscripcio()
+    activate "dades Usuari"
+    "dades Usuari" --> "Gestor Usuari" : return
+    deactivate "dades Usuari"
+    
+    "Gestor Usuari" --> "Interfície Usuari" : MostrarSubActiva()
+end
+
+deactivate "Gestor Usuari"
+deactivate "Interfície Usuari"
+
+@enduml
