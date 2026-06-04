@@ -11,6 +11,8 @@ entity "Menú" as Menu
 entity "DadesUsuari" as DadesUsuari
 entity "DadesCuiner" as DadesCuiner
 control "GestorGoogleMaps" as Gmaps
+boundary "InterfícieMaps" as InterfMaps
+Actor "GoogleMaps" as ActorGoogleMaps
 
 
 UNR -> Interf: accedirCataleg()
@@ -19,7 +21,7 @@ activate Interf
 Interf -> GestorCat: obtenirCataleg()
 activate GestorCat
 
-GestorCat -> Menu: getMenus()
+GestorCat -> Menu: getMenus()*
 activate Menu
 Menu --> GestorCat: llistaMenus
 deactivate Menu
@@ -29,7 +31,7 @@ deactivate GestorCat
 
 Interf --> Interf: mostraLlista(llistaMenus)
 
-opt Usuari activa filtre de proximitat
+alt Usuari activa filtre de proximitat
     UNR -> Interf: filtrarDistanciaRadi(radi)
     Interf -> GestorUs: validaUbicacio()
     GestorUs -> DadesUsuari: comprovarUbicacioCompte()
@@ -44,10 +46,10 @@ opt Usuari activa filtre de proximitat
         GestorUs --> Interf: ubicacioUsuari
         deactivate DadesUsuari
         
-        Interf -> GestorCat: obtenirUbicacionsCuiners()
+        Interf -> GestorCat: obtenirUbicacionsCuiners()*
         activate GestorCat
         
-        GestorCat -> DadesCuiner: getUbicacions()
+        GestorCat -> DadesCuiner: getUbicacions()*
         activate DadesCuiner
         DadesCuiner --> GestorCat: llistaUbicacions
         deactivate DadesCuiner
@@ -55,8 +57,11 @@ opt Usuari activa filtre de proximitat
         GestorCat --> Interf: llistaUbicacions
         deactivate GestorCat
         
-        Interf -> Gmaps: calcularDistancies(ubicacioUsuari, llistaUbicacions)*
+        Interf -> Gmaps: solicitarDistancia(ubicacioUsuari, llistaUbicacions)*
         activate Gmaps
+        Gmaps -> InterfMaps: calcularDistancies(ubicacioUsuari, llistaUbicacions)*
+        ActorGoogleMaps -> InterfMaps: distanciesCalculada
+        InterfMaps -> Gmaps: distanciesCalculada
         Gmaps --> Interf: distanciesCalculades
         deactivate Gmaps
         
@@ -70,7 +75,7 @@ opt Usuari activa filtre de proximitat
 end
 
 
-opt Usuari utilitza barra de cerca o filtres
+alt Usuari utilitza barra de cerca o filtres
     UNR -> Interf: cercarOFiltrar(criteris, paraulaClau)
     
     Interf -> GestorCat: refinarCataleg(criteris)
