@@ -61,7 +61,7 @@ alt Usuari activa filtre de proximitat
         activate Gmaps
         Gmaps -> InterfMaps: calcularDistancies(ubicacioUsuari, llistaUbicacions)*
         ActorGoogleMaps -> InterfMaps: distanciesCalculada
-        InterfMaps -> Gmaps: distanciesCalculada
+        InterfMaps --> Gmaps: distanciesCalculada
         Gmaps --> Interf: distanciesCalculades
         deactivate Gmaps
         
