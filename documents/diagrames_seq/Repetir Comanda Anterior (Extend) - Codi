@@ -2,11 +2,15 @@
 skinparam maxMessageSize 150
 
 actor Comprador
-participant "Interficie\nComanda" as Interficie
-participant "Gestor\nComanda" as Gestor
-participant "Dades\nComprador" as DadesComprador
-participant "Comanda" as Comanda
-participant "Dades\nCuiner" as DadesCuiner
+boundary "Interficie\nComanda" as Interficie
+control "Gestor\nComanda" as Gestor
+entity "Dades\nComprador" as DadesComprador
+entity "Comanda" as Comanda
+entity "Dades\nCuiner" as DadesCuiner
+control "Gestor\nBanc" as GestorBanc
+control "Gestor\nMaps" as GestorMaps
+boundary "Interficie\nBanc" as InterficieBanc
+boundary "Interficie\nMaps" as InterficieMaps
 actor "Entidad\nBancaria\n«actor externo»" as Banco
 actor "Google\nMaps\n«actor externo»" as Maps
 
@@ -37,25 +41,49 @@ alt if_disponible
     Comprador -> Interficie: afegir_pagament()
     Interficie -> Gestor: afegir_pagament()
     
-    Gestor -> Banco: validar_pagament()
-    activate Banco
-    Banco --> Gestor: «return» confirmació
-    deactivate Banco
+    ' --- FLUX BANCARI CORREGIT ---
+    Gestor -> GestorBanc: validar_pagament()
+    activate GestorBanc
     
+    GestorBanc -> InterficieBanc: validar_pagament()
+    activate InterficieBanc
+    
+    
+    Banco --> InterficieBanc: confirmacio()
+   
+    
+    InterficieBanc --> GestorBanc: confirmacio()
+    deactivate InterficieBanc
+    
+    GestorBanc --> Gestor: confirmacio()
+    deactivate GestorBanc
+
     Gestor -> Comanda: actualitza_pagament()
     activate Comanda
+    Comanda --> Gestor: «return»
     deactivate Comanda
 
+    ' --- FLUX MAPS AFEGIT I ESTRUCTURAT ---
     Comprador -> Interficie: afegir_direcció()
     Interficie -> Gestor: afegir_direcció()
     
-    Gestor -> Maps: validar_direcció(adreça)
-    activate Maps
-    Maps --> Gestor: «return» coordenades
-    deactivate Maps
+    Gestor -> GestorMaps: validar_direcció(adreça)
+    activate GestorMaps
+    
+    GestorMaps -> InterficieMaps: validar_direcció(adreça)
+    activate InterficieMaps
+    
+    Maps --> InterficieMaps: donar_coordenades()
+    
+    InterficieMaps --> GestorMaps: «return» coordenades
+    deactivate InterficieMaps
+    
+    GestorMaps --> Gestor: «return» coordenades
+    deactivate GestorMaps
     
     Gestor -> Comanda: actualitza_direcció(coordenades)
     activate Comanda
+    Comanda --> Gestor: «return»
     deactivate Comanda
 
     Interficie -> Gestor: finalitzar_comanda()
