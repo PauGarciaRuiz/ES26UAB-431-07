@@ -1,0 +1,232 @@
+@startuml
+' --- ENUMS ---
+enum EstatComanda
+enum ModalitatEntrega
+
+' --- CAPA BOUNDARY (INTERFÍCIES DE LÍMIT / SERVEIS EXTERNS) ---
+class InterfUsuaris <<boundary>> {
+  + accedirPerfil()
+  + mostrarFormulari(dadesActuals)
+  + clicarEliminarCompte()
+  + clicarCancellar()
+  + tancarFormulariITornar()
+  + modificarDades(nom, pass, ubicacio, restriccions)
+  + guardarCanvis()
+  + mostrarError(missatge)
+  + mostrarMissatge(missatge)
+  + mostrarAdvertencia(missatge)
+  + tancarAdvertenciaITornar()
+  + confirmarEliminacio(contrasenya)
+  + tancarSessio()
+  + redirigirPantallaBenvinguda()
+  + accedirGestionarRols()
+  + mostrarRols(actiu, disponibles)
+  + tancarGestioRols()
+  + seleccionarNouRol(nouRol)
+  + confirmarCanvi()
+  + recarregarInterficie(nouRol)
+  + AccedirPantallaRegistre()
+  + registrarAmbOAuth()
+  + introduirNom(nom)
+  + introduirDades(correu, contrasenya, nom)
+  + clicarEnllacVerificacio()
+  + seleccionarRol(rol)
+  + iniciarSessio()
+  + accedirIniciSessio()
+  + iniciarSessioOAuth()
+  + introduirCredencials(correu, contrasenya)
+  + clicarEntrar()
+  + activarSessio()
+  + redirigirPantallaPrincipal()
+  + mostrarPantallaRols(rol1, rol2, rol3)
+  + confirmarFinalitzar()
+  + clicarSelectorIdioma()
+  + mostrarDesplegable(opcions)
+  + clicarForaOTancar()
+  + tancarDesplegable()
+  + seleccionarIdioma(nouIdioma)
+  + desarPreferenciaLocal(nouIdioma)
+  + actualitzarTextosPantalla(diccionariTextos)
+}
+
+class InterfComandes <<boundary>>
+
+class InterfComunicacio <<boundary>>
+
+class InterfCataleg <<boundary>> {
+  + accedirCataleg()
+  + mostraLlista(llistaMenus)
+  + filtrarDistanciaRadi(radi)
+  + avísUbicacio()
+  + mostraLlistaActualitzada(llista)
+  + cercarOFiltrar(criteris, paraulaClau)
+  + seleccionarMenu(id)
+  + mostraFitxa()
+  + tancarFitxa()
+}
+
+class InterfMaps <<boundary>> {
+  + validarUbicacio(ubicacio)
+  + calcularDistancies(ubicacioUsuari, llistaUbicacions)
+}
+
+class InterfPagament <<boundary>> {
+  + cancellarSubscripcio()
+}
+
+' --- CAPA CONTROL (GESTORS) ---
+class GestorUsuaris <<control>> {
+  + obtenirDadesPerfil()
+  + validarNovesDades(nom, pass, ubicacio)
+  + desarCanvis(nom, pass, ubicacio, restriccions)
+  + validarContrasenya(contrasenya)
+  + processarBaixa()
+  + obtenirRolsUsuari()
+  + actualitzarRolActiu(nouRol)
+  + validarCorreu(correu)
+  + validarNom(nom)
+  + validarDades(correu, contrasenya, nom)
+  + enviarCorreuVerificacio(correu)
+  + validarAlta()
+  + finalitzarRegistre(dades, rol)
+  + verificarExistenciaCorreu(correu)
+  + validarCredencials(correu, contrasenya)
+  + identificarCompte(correu)
+  + validarSeleccioRol(rol)
+  + validaUbicacio()
+}
+
+class GestorComandes <<control>>
+class GestorComunicacio <<control>>
+
+class GestorCataleg <<control>> {
+  + obtenirCataleg()
+  + obtenirUbicacionsCuiners()
+  + filtrarPerRadi(radi, distancies)
+  + refinarCataleg(criteris)
+  + obtenirDetalls(id)
+}
+
+class GestorMaps <<control>> {
+  + solicitarDistancia(ubicacioUsuari, llistaUbicacions)
+}
+
+class GestorPagament <<control>>
+
+class GestorOAuth <<control>> {
+  + sol·licitarDades()
+}
+
+class GestorConfiguracio <<control>> {
+  + obtenirTextosTraduïts(nouIdioma)
+}
+
+' --- CAPA ENTITAT (CLASSES DE DOMINI) ---
+class DadesUsuariRegistrat <<entity>> {
+  - nom : String
+  - contrasenya : String
+  - correu : String
+  - ubicacio : String
+  - restriccions : String
+  - subscripcioActiva : Boolean
+  - rolActiu : String
+  + getDades()
+  + comprovarNom(nom)
+  + actualitzarDades(nom, pass, ubicacio, restriccions)
+  + comprovarContrasenya(contrasenya)
+  + comprovarSubscripcioActiva()
+  + donarDeBaixa()
+  + getRols()
+  + actualitzarRol(nouRol)
+  + comprovarCorreu(correu)
+  + comprovarCorreuINom(correu, nom)
+  + crearCompte()
+  + comprovarCredencials(correu, contrasenya)
+  + obtenirDades(correu)
+  + comprovarUbicacioCompte()
+}
+
+class DadesComprador <<entity>>
+class DadesRepartidor <<entity>>
+
+class DadesCuiner <<entity>> {
+  + getUbicacions()
+  + getValoracioCuiner()
+}
+
+class Comanda <<entity>>
+class Valoracio <<entity>>
+class Xat <<entity>>
+class Missatge <<entity>>
+
+class Menú <<entity>> {
+  - id : String
+  - descripcio : String
+  + getMenus()
+}
+
+class Plat <<entity>>
+class Ingredient <<entity>>
+
+' --- RELACIONS DE LES CAPES (BOUNDARY -> CONTROL -> ENTITY) ---
+
+InterfUsuaris "1" -- "1" GestorUsuaris
+GestorUsuaris "1" -- "1..*" DadesUsuariRegistrat
+
+InterfComandes "1" -- "1" GestorComandes
+GestorComandes "1" -- "1..*" Comanda
+
+InterfComunicacio "1" -- "1" GestorComunicacio
+GestorComunicacio "1" -- "1..*" Xat
+
+InterfCataleg "1" -- "1" GestorCataleg
+GestorCataleg "1" -- "1..*" Menú
+GestorCataleg "1" -- "1..*" Plat
+
+' --- NOUS GESTORS I INTERFÍCIES (MAPS, PAGAMENT, IDENTITAT) ---
+
+InterfMaps "1" -- "1" GestorMaps
+InterfPagament "1" -- "1" GestorPagament
+
+' Connexions basades en el diagrama de seqüència de pagament
+GestorComandes --> GestorMaps : demana càlcul de distància
+GestorComandes --> GestorPagament : demana processar transacció
+
+' Connexions per als nous gestors extrets dels diagrames de seqüència
+InterfUsuaris "1" --> "1" GestorOAuth : utilitza
+InterfUsuaris "1" --> "1" GestorConfiguracio : demana traduccions
+
+' --- HERÈNCIA ENTITATS ---
+DadesUsuariRegistrat <|-- DadesComprador
+DadesUsuariRegistrat <|-- DadesCuiner
+DadesUsuariRegistrat <|-- DadesRepartidor
+
+' --- RELACIONS ENTRE ENTITATS ---
+
+' Comandes
+DadesComprador "1" --> "0..*" Comanda : realitza
+DadesCuiner "1" --> "0..*" Comanda : prepara
+DadesRepartidor "0..1" --> "0..*" Comanda : lliura
+
+' Composició de Comandes i Menús
+Comanda "0..*" --> "1..*" Menú : inclou
+Comanda --> EstatComanda : té estat
+Comanda --> ModalitatEntrega : s'entrega via
+
+' Catàleg (Menús, Plats i Ingredients)
+DadesCuiner "1" --> "0..*" Menú : ofereix
+DadesComprador --> Menú : proposa
+DadesCuiner --> Menú : consulta propostes
+Menú "1" o-- "1..*" Plat : conté
+Plat "1" o-- "1..*" Ingredient : té
+
+' Valoracions
+DadesComprador "1" --> "0..*" Valoracio : crea
+Valoracio "0..*" --> "1" DadesCuiner : puntua
+
+' Comunicació (Xat i Missatges)
+DadesComprador "1" -- "0..*" Xat
+DadesCuiner "1" -- "0..*" Xat
+Missatge "0..*" --* "1" Xat
+
+@enduml
