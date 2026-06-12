@@ -23,50 +23,51 @@ Interf --> Interf: mostrarFormulari(dadesActuals)
 opt Subflux A1: Eliminar compte
     UR -> Interf: clicarEliminarCompte()
     note over UR, Interf: [Extend] Salta al Cas d'Ús: Eliminar compte
-end
-
-opt Subflux A2: Cancel·lar edició
-    UR -> Interf: clicarCancellar()
-    Interf --> Interf: tancarFormulariITornar()
-end
-
-UR -> Interf: modificarDades(nom, pass, ubicacio, restriccions)
-UR -> Interf: guardarCanvis()
-
-Interf -> GestorUs: validarNovesDades(nom, pass, ubicacio)
-activate GestorUs
-
-' Validem nom a la BD
-GestorUs -> DadesUsuari: comprovarNom(nom)
-activate DadesUsuari
-DadesUsuari --> GestorUs: resultatNom
-deactivate DadesUsuari
-
-' Validem ubicació mitjançant la Interfície de l'API externa
-GestorUs -> InterfGmaps: validarUbicacio(ubicacio)
-activate InterfGmaps
-InterfGmaps --> GestorUs: resultatUbicacio
-deactivate InterfGmaps
-
-GestorUs --> Interf: resultatValidacioGlobal
-deactivate GestorUs
-
-alt Dades invàlides (Errors de validació)
-    Interf --> Interf: mostrarError("Revisa nom, contrasenya o ubicació")
-else Dades vàlides
-    Interf -> GestorUs: desarCanvis(nom, pass, ubicacio, restriccions)
+else No clica a eliminar compte
+    
+    opt Subflux A2: Cancel·lar edició
+        UR -> Interf: clicarCancellar()
+        Interf --> Interf: tancarFormulariITornar()
+    end
+    
+    UR -> Interf: modificarDades(nom, pass, ubicacio, restriccions)
+    UR -> Interf: guardarCanvis()
+    
+    Interf -> GestorUs: validarNovesDades(nom, pass, ubicacio)
     activate GestorUs
     
-    GestorUs -> DadesUsuari: actualitzarDades(nom, pass, ubicacio, restriccions)
+    ' Validem nom a la BD
+    GestorUs -> DadesUsuari: comprovarNom(nom)
     activate DadesUsuari
-    DadesUsuari --> GestorUs: confirmacioActualitzacio
+    DadesUsuari --> GestorUs: resultatNom
     deactivate DadesUsuari
     
-    GestorUs --> Interf: perfilActualitzat
+    ' Validem ubicació mitjançant la Interfície de l'API externa
+    GestorUs -> InterfGmaps: validarUbicacio(ubicacio)
+    activate InterfGmaps
+    InterfGmaps --> GestorUs: resultatUbicacio
+    deactivate InterfGmaps
+    
+    GestorUs --> Interf: resultatValidacioGlobal
     deactivate GestorUs
-
-    Interf --> Interf: mostrarMissatge("Canvis desats")
-    Interf --> Interf: mostrarFormulari(dadesActualitzades)
-end
-
+    
+    alt Dades invàlides (Errors de validació)
+        Interf --> Interf: mostrarError("Revisa nom, contrasenya o ubicació")
+    else Dades vàlides
+        Interf -> GestorUs: desarCanvis(nom, pass, ubicacio, restriccions)
+        activate GestorUs
+        
+        GestorUs -> DadesUsuari: actualitzarDades(nom, pass, ubicacio, restriccions)
+        activate DadesUsuari
+        DadesUsuari --> GestorUs: confirmacioActualitzacio
+        deactivate DadesUsuari
+        
+        GestorUs --> Interf: perfilActualitzat
+        deactivate GestorUs
+    
+        Interf --> Interf: mostrarMissatge("Canvis desats")
+        Interf --> Interf: mostrarFormulari(dadesActualitzades)
+    end
+  end
+  
 @enduml
