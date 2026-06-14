@@ -60,8 +60,13 @@ class InterfComandes <<boundary>>{
   + tancar_comanda(comanda)
   + iniciar_xat()
   + acceptar_comanda(comanda)
-
+  + realiitzar_comanda()
+  + afegir_pagament(metode_pagament)
+  + afegir_direccio(direccio)
+  + finalitzar_comanda(comanda)
+  + abortar_comanda(comanda)
 }
+
 class InterfComunicacio <<boundary>>
 
 class InterfCataleg <<boundary>> {
@@ -79,10 +84,39 @@ class InterfCataleg <<boundary>> {
 class InterfMaps <<boundary>> {
   + validarUbicacio(ubicacio)
   + calcularDistancies(ubicacioUsuari, llistaUbicacions)
+  + retornar_coords()
 }
 
 class InterfPagament <<boundary>> {
   + cancellarSubscripcio()
+  + confirmar_metode()
+}
+
+class InterfCuiner <<boundary>> {
+  + accedir_estat_compte()
+  + escollir_estat()
+  + clicar_modificar()
+  + escollir_estat_nou()
+  + actualitzar_eleccio_temporal(eleccio)
+  + aplicar_canvis()
+  + accedeix_estat_compte()
+  + seleccionar_desconnectat()
+  + solicitar_desconnexio()
+  + acceptar_condicions()
+  + confirmar_desconnexio()
+  + seleccionar_opcio_ingredients()
+  + iniciar_indicacio()
+  + entrar_ingredients()
+  + seleccionar_etiquetes(ingredients)
+  + seleccionar_revisar()
+  + validar_buits()
+  + modificar_caselles()
+  + seleccionar_terminar_indicacio()
+  + clicar_fer_canvi()
+  + habilitar_edicio()
+  + seleccionar_plat_error(plat)
+  + modificar_error()
+  + clicar_finalitzar()
 }
 
 ' --- CAPA CONTROL (GESTORS) ---
@@ -118,7 +152,14 @@ class GestorComandes <<control>>{
   + escollir_comanda()
   + indicar_temps_estimat()
   + canvi_estat()
+  + obtenir_historial()
+  + seleccionar_comanda_repetida(comanda)
+  + comprovar_disponibilitat()
+  + validar_pagament(metode_pagament)
+  + validar_adreça(adreça)
+
 }
+
 class GestorComunicacio <<control>>
 
 class GestorCataleg <<control>> {
@@ -127,13 +168,21 @@ class GestorCataleg <<control>> {
   + filtrarPerRadi(radi, distancies)
   + refinarCataleg(criteris)
   + obtenirDetalls(id)
+  + confirmacio_revisio(revisio)
+  + mostrar_alerta()
+  + mostrar_missatge
+  + tancar_menu(menu)
+  + vincular_alergens(ingredient)
 }
 
 class GestorMaps <<control>> {
   + solicitarDistancia(ubicacioUsuari, llistaUbicacions)
+  + validar_adreça(adreça)
 }
 
-class GestorPagament <<control>>
+class GestorPagament <<control>>{
+  + validar_pagament(metode_pagament)
+}
 
 class GestorOAuth <<control>> {
   + sol·licitarDades()
@@ -141,6 +190,16 @@ class GestorOAuth <<control>> {
 
 class GestorConfiguracio <<control>> {
   + obtenirTextosTraduïts(nouIdioma)
+}
+
+class GestorCuiner <<control>> {
+  + veure_estats()
+  + registrar_estats()
+  + comprovar_usos_restants()
+  + comunicar_alerta()
+  + registrar_desconnexio()
+  + anular_comandes(comanda)
+  + confirma_anulacio(comanda)
 }
 
 ' --- CAPA ENTITAT (CLASSES DE DOMINI) ---
@@ -174,6 +233,7 @@ class DadesRepartidor <<entity>>
 class DadesCuiner <<entity>> {
   + getUbicacions()
   + getValoracioCuiner()
+  + retornar_estats()
 }
 
 class Comanda <<entity>>{
@@ -211,6 +271,9 @@ GestorComunicacio "1" -- "1..*" Xat
 InterfCataleg "1" -- "1" GestorCataleg
 GestorCataleg "1" -- "1..*" Menú
 GestorCataleg "1" -- "1..*" Plat
+
+InterfCuiner "1" -- "1" GestorCuiner
+GestorCuiner "1" -- "1..*" DadesCuiner
 
 ' --- NOUS GESTORS I INTERFÍCIES (MAPS, PAGAMENT, IDENTITAT) ---
 
