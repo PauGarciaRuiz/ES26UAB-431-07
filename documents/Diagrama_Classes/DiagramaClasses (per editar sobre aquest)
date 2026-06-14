@@ -49,8 +49,19 @@ class InterfUsuaris <<boundary>> {
   + actualitzarTextosPantalla(diccionariTextos)
 }
 
-class InterfComandes <<boundary>>
+class InterfComandes <<boundary>>{
+  + accedir_menu_desitjos()
+  + obtenir_plats_desitjats()
+  + acceptar_plat(plat)
+  + rebutjar_plat(plat)
+  + iniciar_chat
+  + accedir_notificacio()
+  + obrir_menu_comandes()
+  + tancar_comanda(comanda)
+  + iniciar_xat()
+  + acceptar_comanda(comanda)
 
+}
 class InterfComunicacio <<boundary>>
 
 class InterfCataleg <<boundary>> {
@@ -96,7 +107,18 @@ class GestorUsuaris <<control>> {
   + validaUbicacio()
 }
 
-class GestorComandes <<control>>
+class GestorComandes <<control>>{
+  + consultar_plats_desitjats()
+  + mostrar_missatge_cap_plat()
+  + mostrar_llista_plats()
+  + afegir_plat_comanda(plat)
+  + notificar_acceptacio()
+  + tancar_solicitud()
+  + notificar_rebuig()
+  + escollir_comanda()
+  + indicar_temps_estimat()
+  + canvi_estat()
+}
 class GestorComunicacio <<control>>
 
 class GestorCataleg <<control>> {
@@ -154,9 +176,16 @@ class DadesCuiner <<entity>> {
   + getValoracioCuiner()
 }
 
-class Comanda <<entity>>
+class Comanda <<entity>>{
+  + revisar_ingredients(comanda)
+  + confirmar_validacio()
+}
 class Valoracio <<entity>>
-class Xat <<entity>>
+class Xat <<entity>>{
+  - id : String
+  - data_inici : String
+  + repondre()
+}
 class Missatge <<entity>>
 
 class Menú <<entity>> {
